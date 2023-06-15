@@ -1,0 +1,340 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Заявка №{{ ticket.id }}
+{% endblock title %}
+
+
+{% block main %}
+    <div class="mb-3">
+
+        <!-- breadcrumb -->
+        <div class="row mt-3">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="{% url 'projecta:tickets' %}">Все заявки</a></li>
+                  <li class="breadcrumb-item active" aria-current="page">Заявка №{{ ticket.id }}</li>
+                </ol>
+            </nav>
+        </div>
+
+        <!-- info header block -->
+        <div class="row mt-3">
+
+            <div class="col col-12 col-sm-12 col-md-12 col-lg-7 col-xl-7 mt-1">
+              <div class="h-100 p-4 ps-5 rounded text-light" style="background-color: #0d274c;">
+                <div class="col-md px-0">
+                    <h4 class="display-4">Заявка №{{ ticket.id }}</h4>
+                    <p class="lead my-3">
+                        Статус - <span id="data_ticket_statuses">{{ ticket.status }}</span> <br>
+                        Тип - <span id="data_ticket_types">{{ ticket.type }}</span> <br>
+                        Дата выезда - <span id="data_execution_date">{{ ticket.execution_date|date:"d.m.Y" }}</span>
+                    </p>
+                    <p class="lead my-3">
+                        Автор - {{ ticket.author }} <br>
+                        Дата изменения - {{ ticket.updated|date:"d.m.Y" }}
+                    </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="col col-12 col-sm-12 col-md-12 col-lg-5 col-xl-5 mt-1">
+              <div class="h-100 p-4 bg-light rounded-3">
+                <ul class="list-group-flush mt-1">
+                    <li class="list-group-item">Договор <strong>№{{ ticket.agreement.agreement_number }}</strong></li>
+                    <li class="list-group-item"><strong>Клиент</strong> - {{ ticket.agreement.client }}</li>
+                    <li class="list-group-item"><strong>Адрес</strong> - {{ ticket.agreement.address }}</li>
+                    <li class="list-group-item"><strong>Ответственный</strong> - {{ ticket.agreement.responsible }}</li>
+                    {% if act %}
+                        <li class="list-group-item"><strong>Статус акта</strong> - <span id="data_act_statuses">{{ act.act_status }}</span></li>
+                        <li class="list-group-item"><strong>Статус счета</strong> - <span id="data_check_statuses">{{ act.check_status }}</span></li>
+                    {% endif %}
+                    <li class="list-group-item"><strong>Статус договора</strong> - <span id="data_agreement_statuses">{{ ticket.agreement.status }}</span></li>
+                    <li class="list-group-item"><strong>Статус клиента</strong> -
+                        {% if ticket.agreement.client.is_active %}
+                            <img src="{% static 'icons/is_active.svg' %}" class="me-1" style="width: 18px;"> Активный
+                        {% else %}
+                            <img src="{% static 'icons/unactive.svg' %}" class="me-1" style="width: 18px;"> Неактивный
+                        {% endif %}
+                    </li>
+
+                    <li class="list-group-item"><strong>Дата выезда</strong> - <span id="data_execution_date">{{ ticket.execution_date|date:"d.m.Y" }}</span></li>
+
+
+                    <li class="list-group-item">
+                        <strong>Комментарий:</strong> <br>
+                        <span id="data_ticket_comment" class="ms-2">{{ ticket.comment }}</span>
+                    </li>
+
+                    <div class="d-flex pe-3 mt-2">
+                        <button type="button" class="btn btn-outline-dark btn-sm ms-auto" data-bs-toggle="modal" data-bs-target="#changeTicketStatuses">Изменить данные заявки</button>
+                        <a type="button" class="btn btn-outline-dark btn-sm ms-1" href="{% url 'projecta:add_photo' ticket.pk %}">Добавить фото</a>
+
+                        <div class="modal fade" id="changeTicketStatuses" tabindex="-1" aria-labelledby="changeTicketStatuses" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="changeTicketStatusesHeader">Изменить данные заявки</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <form id="add_ticket_statuses" class="">
+                                            {% csrf_token %}
+
+                                            <div id="type_status_tickets">
+                                                <div class="row mb-3">
+                                                    <div class="col-8">
+                                                        <label for="ticket_types">Тип заявки</label>
+                                                        <select class="form-select" name="ticket_types" id="id_ticket_types">
+                                                            {% for value, option in ticket_types %}
+                                                                <option value="{{ value }}">{{ option }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-4 mt-auto d-grid">
+                                                        <button id="send_ticket_types" type="button" data-url="{% url 'projecta:update_ticket_type' ticket.pk %}" class="btn btn-success">Отправить</button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <div class="col-8">
+                                                        <label for="ticket_statuses">Статус заявки</label>
+                                                        <select class="form-select" name="ticket_statuses" id="id_ticket_statuses">
+                                                            {% for value, option in ticket_statuses %}
+                                                                <option value="{{ value }}">{{ option }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-4 mt-auto d-grid">
+                                                        <button id="send_ticket_statuses" type="button" data-url="{% url 'projecta:update_ticket_status' ticket.pk %}" class="btn btn-success">Отправить</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <div class="col-8">
+                                                    <label for="agreement_statuses">Статус договора</label>
+                                                    <select class="form-select" name="agreement_statuses" id="id_agreement_statuses">
+                                                        {% for value, option in agreement_statuses %}
+                                                            <option value="{{ value }}">{{ option }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-4 mt-auto d-grid">
+                                                    <button id="send_agreement_statuses" type="button" data-url="{% url 'projecta:update_agreement_status' ticket.agreement.pk %}" class="btn btn-success">Отправить</button>
+                                                </div>
+                                            </div>
+
+                                            {% if act %}
+                                                <div id="act_tickets">
+                                                    <div class="row mb-3">
+                                                        <div class="col-8">
+                                                            <label for="act_statuses">Статус акта</label>
+                                                            <select class="form-select" name="act_statuses" id="id_act_statuses">
+                                                                {% for value, option in act_statuses %}
+                                                                    <option value="{{ value }}">{{ option }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-4 mt-auto d-grid">
+                                                            <button id="send_act_statuses" type="button" data-url="{% url 'projecta:update_act_status' act.pk %}" class="btn btn-success">Отправить</button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row mb-3">
+                                                        <div class="col-8">
+                                                            <label for="check_statuses">Статус счёта</label>
+                                                            <select class="form-select" name="check_statuses" id="id_check_statuses">
+                                                                {% for value, option in check_statuses %}
+                                                                    <option value="{{ value }}">{{ option }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-4 mt-auto d-grid">
+                                                            <button id="send_check_statuses" type="button" data-url="{% url 'projecta:update_check_status' act.pk %}" class="btn btn-success">Отправить</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+
+                                            <div id="change_execution_date">
+                                                <div class="row mb-3">
+                                                    <div class="col-8">
+                                                        <label for="id_label_execution_date">Дата выезда</label>
+                                                        <input type="date" class="form-control" name="execution_date" id="id_execution_date" value="{{ ticket.execution_date|date:"Y-m-d" }}" id="id_execution_date">
+                                                    </div>
+
+                                                    <div class="col-4 mt-auto d-grid">
+                                                        <button id="send_ticket_execution_date" type="button" data-url="{% url 'projecta:update_ticket_exec_date' ticket.pk %}" class="btn btn-success">Отправить</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div id="change_comment">
+                                                <div class="row mb-3">
+                                                    <div class="col-8">
+                                                        <label for="id_label_comment">Комментарий</label>
+                                                        <textarea class="form-control" name="comment" rows="3" cols="45" id="id_ticket_comment">{% if ticket.comment %}{{ ticket.comment }}{% endif %}</textarea>
+                                                    </div>
+
+                                                    <div class="col-4 mt-auto d-grid">
+                                                        <button id="send_ticket_comment" type="button" data-url="{% url 'projecta:update_ticket_comment' ticket.pk %}" class="btn btn-success">Отправить</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </form>
+                                        <div id="ticket_statuses_messages"></div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </ul>
+              </div>
+            </div>
+
+        </div>
+
+        <!-- Контакты клиента -->
+        <div class="mt-5">
+            <h4 class="d-inline me-3">Контакты клиента</h4>
+
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 mt-2">
+
+                {% for item in ticket.agreement.client.contacts.all %}
+                    <div class="col mt-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h5 class="card-title fw-bold me-auto">{{ item.fio }}</h5>
+                                    <span class="badge bg-dark rounded-pill">{{ item.priority }}</span>
+                                </div>
+                                <div class="card-text">
+                                    <li class="list-group-item">
+                                        <div class="ms-2 me-auto">
+                                            {% if item.phone %}
+                                                <div>
+                                                    <img src="{% static 'icons/phone.svg' %}" class="me-2" style="width: 15px;" />
+                                                    {{ item.phone }}
+                                                </div>
+                                            {% endif %}
+
+                                            {% if item.email %}
+                                                <div>
+                                                    <img src="{% static 'icons/email.svg' %}" class="me-2" style="width: 15px;" />
+                                                    {{ item.email }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                {% empty %}
+                    <div class="mt-3"><strong>Нет контактов.</strong></div>
+                {% endfor %}
+
+            </div>
+        </div>
+
+        <!-- Оборудование -->
+        <div class="mt-5">
+            <h4 class="d-inline me-3">Оборудование</h4>
+
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-2 mt-1">
+                {% for equipment in ticket.agreement.equipment.all %}
+                    <div class="col mt-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div><strong>{{ equipment.type }}</strong></div>
+                                <h6 class="card-subtitle mb-2 mt-1">От <strong>{{ equipment.date_from|date:"d.m.Y" }}</strong> до <strong>{{ equipment.date_to|date:"d.m.Y" }}</strong></h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Количество: {{ equipment.amount }}</h6>
+                                <div class="card-text">
+                                    {{ equipment.description }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="mt-3"><strong>Нет оборудования.</strong></div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Изображения -->
+        <div class="mt-5">
+            <h4 class="d-inline me-3">Изображения</h4>
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-3">
+                {% for photo in ticket.photos.all %}
+                    <div class="col mt-3" id="photo_card_{{ photo.pk }}">
+                        <div class="card text-bg-dark">
+                            <img src="{{ photo.photo.url }}" class="rounded img-fluid">
+                            <div class="card-img-overlay">
+                                <div class="d-flex">
+
+                                    <button type="button" class="btn ms-auto text-bg-light" style="padding:0;" title="Удалить фото" data-bs-toggle="modal" data-bs-target="#modalPhoto{{ photo.pk }}">
+                                        <img src="{% static 'icons/delete.svg' %}" style="width: 20px;">
+                                    </button>
+
+                                    <!-- delete_modal -->
+                                    <div class="modal fade" id="modalPhoto{{ photo.pk }}" tabindex="-1" aria-labelledby="{{ photo.pk }}PhotoLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h1 class="modal-title fs-5 text-bg-light" id="{{ photo.pk }}PhotoLabel">Точно хотите удалить это фото?</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+
+                                                <div class="modal-body">
+                                                    <img src="{{ photo.photo.url }}" class="rounded img-fluid">
+                                                </div>
+
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                                    <!-- это не ошибка, по-другому переменную эту туда не загнать -->
+                                                    <button onclick='delete_ticket_photo_func("{% url 'projecta:delete_equip_photo' photo.pk %}", "photo_card_{{ photo.pk }}")' id="delete_photo" type="button" class="btn btn-danger"
+                                                        data-bs-dismiss="modal">Удалить</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="mt-3"><strong>Нет изображений.</strong></div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+{% endblock main %}
+
+{% block script %}
+    <script type="text/javascript" src="{% static 'js/scripts/update_ticketStatuses_tickets.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/scripts/delete_photo.js' %}"></script>
+    <script defer>
+        document.getElementById('id_ticket_types').value = document.getElementById('data_ticket_types').innerHTML;
+        document.getElementById('id_ticket_statuses').value = document.getElementById('data_ticket_statuses').innerHTML;
+        document.getElementById('id_agreement_statuses').value = document.getElementById('data_agreement_statuses').innerHTML;
+        {% if act %}
+            document.getElementById('id_act_statuses').value = document.getElementById('data_act_statuses').innerHTML;
+            document.getElementById('id_check_statuses').value = document.getElementById('data_check_statuses').innerHTML;
+        {% endif %}
+        document.getElementById('id_ticket_comment').value = document.getElementById('data_ticket_comment').innerHTML;
+    </script>
+{% endblock script %}

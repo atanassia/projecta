@@ -1,0 +1,75 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+
+{% block title %}
+    Обновление контакта
+{% endblock title %}
+
+
+{% block main %}
+<div class="row justify-content-center">
+    <div class="col-12 col-sm-12 col-md-9 col-lg-7 col-xl-6">
+        <div class="form-header">
+            <h4 class="title mb-3 mt-4" id="exampleLabel">Обновление контакта</h4>
+        </div>
+        <div class="form-body mb-3">
+            {% if form.errors %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>{{field.label}}: </strong>{{ error|escape }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group row mt-4">
+                    <label for="id_fio" class="col-sm-3 col-form-label ">{{ form.fio.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="fio" value="{{ form.fio.value }}" id="id_fio" required>
+                    </div>
+                </div>
+
+                <div class="form-group row mt-4">
+                    <label for="id_phone" class="col-sm-3 col-form-label ">{{ form.phone.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="phone" value="{{ form.phone.value }}" id="id_phone" data-phone-pattern placeholder="+7(999) 123-5678" required>
+                    </div>
+                </div>
+
+                <div class="form-group row mt-4">
+                    <label for="id_email" class="col-sm-3 col-form-label ">{{ form.email.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="email" class="form-control" name="email" value="{{ form.email.value }}" id="id_email">
+                    </div>
+                </div>
+
+                <div class="form-group row mt-4">
+                    <label for="id_priority" class="col-sm-3 col-form-label ">{{ form.priority.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="priority" value="{{ form.priority.value }}" id="id_priority" required>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-1 mt-5">
+                    <div class="d-flex ms-auto btn-group" role="group">
+                        <a class="btn btn-secondary" href="{% url 'projecta:client_detail' contact.client.id %}" role="button">Назад</a>
+                        <button class="btn btn-success" type="submit">Отправить</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main %}
+
+
+{% block script %}
+  <script defer type="text/javascript" src="{% static 'js/scripts/phone_input.js' %}"></script>
+{% endblock script %}

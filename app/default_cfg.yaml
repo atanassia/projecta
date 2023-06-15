@@ -1,0 +1,10 @@
+db:
+  host: 'host'
+  port : 'port'
+  user: 'user'
+  password: 'password'
+  name: 'name'
+email:
+  user: 'example@email.com'
+  password: 'password'
+secret_ket: 'secret_key'

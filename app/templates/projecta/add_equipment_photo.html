@@ -1,0 +1,68 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Добавить фото
+{% endblock title %}
+
+
+{% block main %}
+
+    <div class="container">
+        <h4 class="display-4 mt-4">Добавить изображения</h4>
+
+        <div class="mb-5 mt-4">
+            <form method="post" enctype="multipart/form-data" action="">
+                {% csrf_token %}
+                <input class="form-control" type="file" id="id_photo" name="photo" accept=".jpg, .jpeg, .png" onchange="preview()" multiple required>
+                <p class="fw-light">Можно загрузить несколько файлов.</p>
+                <div class="d-grid gap-1 mt-3">
+                    <div class="pe-3 d-flex ms-auto btn-group" role="group">
+                        <a class="btn btn-secondary" href="{% url 'projecta:ticket_detail' ticket_id %}" role="button">Назад</a>
+                        <button type="button" onclick="clearImage()" class="btn btn-primary">Очистить</button>
+                        <button type="submit" class="btn btn-success">Отправить</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div id="messages">
+        {% if mesage %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ mesage|escape }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endif %}
+        </div> 
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-3" id="frame">
+        </div>
+    </div>
+
+    <script>
+        function preview() {
+            console.log(event.target.files)
+            for (let i = 0; i < event.target.files.length; i++) {
+                if (event.target.files[i]['type'] != 'image/jpeg' && event.target.files[i]['type'] != 'image/png' && event.target.files[i]['type'] != 'image/jpg'){
+                    document.getElementById('messages').insertAdjacentHTML('afterbegin', 
+                        '<div class="alert alert-danger alert-dismissible fade show" role="alert">Неправильный формат у файла '
+                        + event.target.files[i]['name'] +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>');
+                    clearImage()
+                }else{
+                    document.getElementById('frame').insertAdjacentHTML(
+                    'afterbegin',
+                    '<div class="col mt-3">'+
+                        '<div class="card">'+
+                            '<img src="'+ URL.createObjectURL(event.target.files[i]) +'" class="rounded img-fluid">'+
+                        '</div>'+
+                    '</div>'
+                    )
+                }
+            }
+        }
+        function clearImage() {
+            document.getElementById('frame').innerHTML = '';
+            document.getElementById('id_photo').value= null;
+        }
+    </script>
+{% endblock main %}

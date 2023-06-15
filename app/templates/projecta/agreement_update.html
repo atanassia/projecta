@@ -1,0 +1,152 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Обновление договора
+{% endblock title %}
+
+{% block main %}
+
+<div class="mb-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-12 col-md-9 col-lg-7 col-xl-6">
+            <div class="form-header">
+                <h4 class="title mb-3 mt-4" id="exampleLabel">Обновление договора №{{ form.agreement_number.value }}</h4>
+            </div>
+            <div class="form-body mb-3">
+                {% if form.errors %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <strong>{{field.label}}: </strong>{{ error|escape }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group row mt-4">
+                        <label for="id_client" class="col-sm-3 col-form-label ">{{ form.client.label }}</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" name="client" id="id_client">
+                                {% for client in form.client.field.choices %}
+                                    <option value="{{ client.0 }}" {% if client.1 == form.client.value %}selected{% endif %}>{{ client.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_agreement_number" class="col-sm-3 col-form-label ">{{ form.agreement_number.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="agreement_number" value="{{ form.agreement_number.value }}" maxlength="12" required="" id="id_agreement_number" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_address" class="col-sm-3 col-form-label ">{{ form.address.label }}</label>
+                        <div class="col-sm-9">
+                            <textarea rows="3" cols="45" class="form-control" name="address" id="id_address" required>{{ form.address.value }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_date_from" class="col-sm-3 col-form-label ">{{ form.date_from.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="date_from" value="{{ form.date_from.value|date:"Y-m-d" }}" id="id_date_from" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_date_to" class="col-sm-3 col-form-label ">{{ form.date_to.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="date_to" value="{{ form.date_to.value|date:"Y-m-d" }}" id="id_date_to" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_status" class="col-sm-3 col-form-label ">{{ form.status.label }}</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" name="status" id="id_status" onchange='findOption(this)'>
+                                {% for status in form.status %}
+                                    {{ status }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="visible_reasons_termination">
+                        {% if form.status.value == "Расторгнут"%}
+                        <div class="form-group row mt-4" id="group_element_reasons_termination">
+                            <label for="id_reasons_termination" class="col-sm-3 col-form-label">{{ form.reasons_termination.label }}</label>
+                            <div class="col-sm-9">
+                                <textarea rows="3" cols="45" class="form-control" name="reasons_termination" id="id_reasons_termination" required>{{ form.reasons_termination.value }}</textarea>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_responsible" class="col-sm-3 col-form-label ">{{ form.responsible.label }}</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" name="responsible" id="id_responsible">
+                                {% for responsible in form.responsible %}
+                                    {{ responsible }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_num_reg_certificate" class="col-sm-3 col-form-label ">{{ form.num_reg_certificate.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="num_reg_certificate" value="{{ form.num_reg_certificate.value }}" id="id_num_reg_certificate">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_date_reg_certificate" class="col-sm-3 col-form-label ">{{ form.date_reg_certificate.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="date_reg_certificate" value="{{ form.date_reg_certificate.value|date:"Y-m-d" }}" id="id_date_reg_certificate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_license" class="col-sm-3 col-form-label ">{{ form.license.label }}</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" name="license" id="id_license">
+                                {% for license in form.license %}
+                                    {{ license }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_is_active" class="col-sm-3 col-form-label">{{ form.is_active.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" {% if form.is_active.value %}checked{% endif %}>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-1 mt-5">
+                        <div class="d-flex ms-auto btn-group" role="group">
+                            <a class="btn btn-secondary" href="{% url 'projecta:agreement_detail' agreement.id %}" role="button">Назад</a>
+                            <button class="btn btn-success" type="submit">Отправить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock main %}
+
+{% block script %}
+    <script type="text/javascript" src="{% static 'js/scripts/visible_reasonsTermination.js' %}"></script>
+{% endblock script %}

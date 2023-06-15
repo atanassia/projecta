@@ -1,0 +1,43 @@
+{% extends 'layout/layout.html' %}
+
+{% block title %}
+    Авторизация
+{% endblock title %}
+
+{% block main %}
+<div class="mt-3">
+    {% if message %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endif %}
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-12 col-md-9 col-lg-7 col-xl-6">
+            <div class="form-header">
+                <h4 class="title mb-3 mt-4 forms_style" id="exampleLabel">Авторизация</h4>
+            </div>
+            <div class="form-body">
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <div class="form-group row mt-4">
+                        <label for="email" class="col-sm-2 col-form-label forms_style">Почта</label>
+                        <div class="col-sm-10">
+                            <input type="email" class="form-control" id="email" name = "email"  placeholder = "Введите почту" required>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-4">
+                        <label for="password" class="col-sm-2 col-form-label forms_style">Пароль</label>
+                        <div class="col-sm-10">
+                            <input type="password" class="form-control" id="password" name = "password"  placeholder = "Введите пароль" required>
+                        </div>
+                    </div>
+                    <div class="float-right mt-5">
+                        <button class="btn btn-primary" type="submit">Отправить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main %}

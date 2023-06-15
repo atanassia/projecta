@@ -1,0 +1,69 @@
+{% extends 'layout/layout.html' %}
+
+{% block title %}
+    Обновление лицензии
+{% endblock title %}
+
+{% block main %}
+    <div class="row justify-content-center mb-3">
+        <div class="col-12 col-sm-12 col-md-9 col-lg-7 col-xl-6">
+            <div class="form-header">
+                <h4 class="title mb-3 mt-4" id="exampleLabel">Обновление лицензии</h4>
+            </div>
+            <div class="form-body mb-3">
+                {% if form.errors %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <strong>{{field.label}}: </strong>{{ error|escape }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group row mt-4">
+                        <label for="id_date_reg" class="col-sm-3 col-form-label ">{{ form.date_reg.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="date_reg" value="{{ form.date_reg.value|date:"Y-m-d" }}" id="id_date_reg" required>
+                        </div>
+                    </div>
+    
+                    <div class="form-group row mt-4">
+                        <label for="license" class="col-sm-3 col-form-label ">{{ form.license.label }}</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" name="license" id="id_license" rows="3" cols="45">{{ form.license.value }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_class_danger" class="col-sm-3 col-form-label ">{{ form.class_danger.label }}</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" name="class_danger" id="id_class_danger">
+                                {% for class_danger in  form.class_danger %}
+                                    {{ class_danger }}
+                                {% endfor %}
+                            </select>
+                        </div>  
+                    </div>
+
+                    <div class="form-group row" hidden>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" name="curr_license" id="id_curr_license" rows="3" cols="45">{{ form.license.value }}</textarea>
+                        </div>
+                    </div>
+    
+                    <div class="d-grid gap-1 mt-5">
+                        <div class="d-flex ms-auto btn-group" role="group">
+                            <a class="btn btn-secondary" href="{% url 'projecta:company' %}" role="button">Назад</a>
+                            <button class="btn btn-success" type="submit">Отправить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock main %}

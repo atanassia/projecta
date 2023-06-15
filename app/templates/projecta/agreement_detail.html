@@ -1,0 +1,768 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+
+{% block title %}
+    Договор № {{ agreement.agreement_number }}
+{% endblock title %}
+
+{% block main %}
+    <div class="mb-3">
+        <div id="breadcrumb_message">
+            <div class="row mt-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'projecta:clients' %}">Все клиенты</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'projecta:client_detail' agreement.client.pk %}">{{ agreement.client.org_form }} "{{ agreement.client.name }}"</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Договор №{{ agreement.agreement_number }}</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        {% if not agreement.is_active %}
+        <div class="row">
+            <div class="alert alert-secondary" role="alert">
+                <strong>Договор №{{ agreement.agreement_number }} не активен.</strong> Добавление оборудования, заявок, актов, счетов запрещено!!!<br>
+                <strong>Договор №{{ agreement.agreement_number }}</strong> не будет отображаться в <a href="{% url 'projecta:agreements' %}">списке договоров</a>!!!<br>
+                Чтобы возобновить работу по <strong>договору №{{ agreement.agreement_number }}</strong>
+                нужно в разделе <a href="{% url 'projecta:agreement_update' agreement.id %}">"Изменить информацию"</a> сделать его активным.
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row mt-1">
+            <div class="col col-12 col-sm-12 col-md-12 col-lg-7 col-xl-7 mt-1">
+                <div class="h-100 p-4 ps-5 bg-light rounded">
+                    <div class="col-md px-0">
+                        <h4 class="display-4">Договор №{{ agreement.agreement_number }}</h4>
+                        <p class="lead my-3">Статус - <span id="data_agreement_statuses">{{ agreement.status }}</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col col-12 col-sm-12 col-md-12 col-lg-5 col-xl-5 mt-1">
+                <div class="h-100 p-4 p-md-4 mb-2 bg-light rounded">
+                  <ul class="list-group-flush">
+                    <li class="list-group-item"><strong>Клиент</strong> - {{ agreement.client }}</li>
+                    <li class="list-group-item"><strong>Адрес</strong> - {{ agreement.address }}</li>
+                    <li class="list-group-item">От <strong>{{ agreement.date_from|date:"d.m.Y" }}</strong> до <strong>{{ agreement.date_to|date:"d.m.Y" }}</strong></li>
+                    <li class="list-group-item"><strong>Ответственный</strong> - {{ agreement.responsible }}</li>
+                    <li class="list-group-item"><strong>Регистрационный №</strong> - {{ agreement.num_reg_certificate }}</li>
+                    <li class="list-group-item"><strong>Дата регистрации</strong> - {{ agreement.date_reg_certificate|date:"d.m.Y" }}</li>
+                    <li class="list-group-item"><strong>Класс опасности</strong> - {{ agreement.class_danger }}</li>
+                    <li class="list-group-item"><strong>Лицензия</strong> - {{ agreement.license }}</li>
+                    {% if perms.projecta.change_agreement %}
+                        <div class="btn-group d-flex justify-content-end mt-1">
+                            <a class="btn btn-outline-dark btn-sm ms-auto" href="{% url 'projecta:agreement_update' agreement.pk %}" role="button">Изменить информацию</a>
+                            <button type="button" class="btn btn-outline-danger btn-sm ms-auto" data-bs-toggle="modal" data-bs-target="#deleteAgreement">Удалить клиента</button>
+              
+                            <!-- delete_modal_client -->
+                            <div class="modal fade" id="deleteAgreement" tabindex="-1" aria-labelledby="deleteAgreement" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                      
+                                <div class="modal-content">
+              
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="deleteAgreementHeader">Удалить договор №{{ agreement.agreement_number }}?</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+              
+                                  <div class="modal-body">
+                                    <form id="delete_client" class="was-validated">
+                                      {% csrf_token %}
+                                      <li class="list-group-item">
+                                        <div class="ms-2 me-auto">
+                                          <div>
+                                            <br><strong>Клиент</strong> - {{ agreement.client }}
+                                            <br><strong>Адрес</strong> - {{ agreement.address }}
+                                            <br>От <strong>{{ agreement.date_from|date:"d.m.Y" }}</strong> до <strong>{{ agreement.date_to|date:"d.m.Y" }}</strong>
+                                            <br><strong>Статус</strong> - {{ agreement.status }}                                          
+                                            <br><strong>Ответственный</strong> - {{ agreement.responsible }}
+                                            <br><strong>Регистрационный №</strong> - {{ agreement.num_reg_certificate }}
+                                            <br><strong>Дата регистрации</strong> - {{ agreement.date_reg_certificate|date:"d.m.Y" }}
+                                            <br><strong>Класс опасности</strong> - {{ agreement.class_danger }}
+                                            <br><strong>Лицензия</strong> - {{ agreement.license }}
+                                        </div>
+                                      </li>
+              
+                                    </form>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                    <!-- это не ошибка, по-другому переменную эту туда не загнать -->
+                                    <button  onclick='update_agreement_is_deleted_func("{% url 'projecta:update_agreement_is_delete' agreement.id %}")' id="delete_agreement" type="button" class="btn btn-danger" data-bs-dismiss="modal">Удалить</button>
+                                  </div>
+              
+                                </div>
+              
+                                </div>
+              
+                              </div>
+                            </div>
+                    {% endif %}
+
+                    {% if user.position == 'Accountant' %}
+                        <div class="d-flex pe-3 mt-2">
+                            <button type="button" class="btn btn-outline-dark btn-sm ms-auto" data-bs-toggle="modal" data-bs-target="#changeTicketStatuses">Изменить статусы</button>
+
+                            <div class="modal fade" id="changeTicketStatuses" tabindex="-1" aria-labelledby="changeTicketStatuses" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                    <div class="modal-content">
+
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="changeTicketStatusesHeader">Изменить статусы</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <form id="add_ticket_statuses" class="">
+                                                {% csrf_token %}
+
+                                                <div class="row mb-3">
+                                                    <div class="col-8">
+                                                        <label for="agreement_statuses">Статус договора</label>
+                                                        <select class="form-select" name="agreement_statuses" id="id_agreement_statuses">
+                                                            {% for value, option in agreement_statuses %}
+                                                                <option value="{{ value }}">{{ option }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-4 mt-auto d-grid">
+                                                        <button id="send_agreement_statuses" type="button" data-url="{% url 'projecta:update_agreement_status' agreement.pk %}" class="btn btn-success">Отправить</button>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                            <div id="ticket_statuses_messages"></div>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                  </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Оборудование -->
+        <div class="mt-5">
+
+            <h4 class="d-inline me-3">Оборудование</h4>
+            {% if perms.projecta.add_equipment %}
+                <button type="button" class="btn btn-dark btn-sm d-inline" data-bs-toggle="modal" data-bs-target="#addEquipment">Добавить оборудование</button>
+
+                <div class="modal fade" id="addEquipment" tabindex="-1" aria-labelledby="addEquipment" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="addEquipmentHeader">Добавить оборудование</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <form id="add_equipment" class="was-validated">
+                                    {% csrf_token %}
+
+                                    <input type="hidden" id="agreement" name="agreement" value="{{ agreement.pk }}">
+
+                                    <div class="row">
+
+                                        <div class="col col col-12 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                            <div class="mb-3">
+                                                <div class="form-floating">
+                                                    <select class="form-select" name="type" id="id_type">
+                                                        {% for item in equipment_form.type %}
+                                                            {{ item }}
+                                                        {% endfor %}
+                                                    </select>
+                                                    <label for="id_type">{{ equipment_form.type.label }}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col col col-12 col-sm-4 col-md-4 col-lg-4 col-xl-4 mb-3">
+                                            <div class="form-floating">
+                                                <input  type="number" name="amount" id="id_amount" class="form-control" required>
+                                                <label for="id_amount">{{ equipment_form.amount.label }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+                                        <div class="col mb-3">
+                                            <div class="form-floating">
+                                                <input type="date" class="form-control" name="date_from" id="id_date_from" required>
+                                                <label for="id_date_from">{{ equipment_form.date_from.label }}</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col mb-3">
+                                            <div class="form-floating">
+                                                <input type="date" class="form-control" name="date_to" id="id_date_to" required>
+                                                <label for="id_date_to">{{ equipment_form.date_to.label }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="id_description" class="row m-1 form-label">{{ equipment_form.description.label }}</label>
+                                        <div class="m-1">
+                                            <textarea class="form-control" name="description" rows="3" cols="45" id="id_description" required ></textarea>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div id="equipment_messages"></div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button id="send_equipment" type="button" data-url="{% url 'projecta:create_equipment' %}"
+                                    data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-2 row-cols-xl-2 mt-1" id="equipment_row">
+                {% for equipment in agreement.equipment.all %}
+                    <div class="col mt-3" id="equipment_card_{{ equipment.id }}">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <div class="d-flex">
+                                    <div class="text-wrap"><strong>{{ equipment.type }}</strong></div>
+                                    <div class="ms-auto">
+                                        {% if perms.projecta.change_equipment %}
+                                            <a href="{% url 'projecta:equipment_update' equipment.id %}" title="Обновить данные оборудования" class="me-2">
+                                                <img src="{% static 'icons/update.svg' %}" style="width: 18px;">
+                                            </a>
+                                        {% endif %}
+
+                                        {% if perms.projecta.delete_equipment %}
+                                            <button type="button" class="btn" style="padding:0;" title="Удалить оборудование" data-bs-toggle="modal" data-bs-target="#modalEquipment{{ equipment.id }}">
+                                                <img src="{% static 'icons/delete.svg' %}" style="width: 18px;">
+                                            </button>
+                                            <!-- delete_modal -->
+                                            <div class="modal fade" id="modalEquipment{{ equipment.id }}" tabindex="-1" aria-labelledby="{{ equipment.id }}EquipmentLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="{{ equipment.id }}EquipmentLabel">Точно хотите удалить оборудование?</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <h5 class="card-title fw-bold me-auto">{{ equipment.type }}</h5>
+                                                            <li class="list-group-item">
+                                                                <div class="ms-2 me-auto">
+                                                                    Количество - {{ equipment.amount }}
+                                                                </div>
+                                                            </li>
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                                            <!-- это не ошибка, по-другому переменную эту туда не загнать -->
+                                                            <button onclick='delete_equipment_func("{% url 'projecta:delete_equipment' equipment.id %}", "equipment_card_{{ equipment.id }}")' id="delete_equipment" type="button" class="btn btn-danger"
+                                                                data-bs-dismiss="modal">Удалить</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <h6 class="card-subtitle mb-2 mt-1">От <strong>{{ equipment.date_from|date:"d.m.Y" }}</strong> до <strong>{{ equipment.date_to|date:"d.m.Y" }}</strong></h6>
+                                <h6 class="card-subtitle mb-2 text-muted">Количество: {{ equipment.amount }}</h6>
+                                <div class="card-text">
+                                    {{ equipment.description }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="mt-3" id ="no-equipment"><strong>Нет оборудования.</strong></div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <!-- Страховые полисы -->
+        <div class="mt-5">
+
+            <h4 class="d-inline me-3">Страховые полисы</h4>
+            {% if agreement.status != "Расторгнут" and agreement.status != "ЭДО" %}
+            {% if perms.projecta.add_insurancepolicy %}
+            <button type="button" class="btn btn-dark btn-sm d-inline" data-bs-toggle="modal" data-bs-target="#addInsurancePolicy">Добавить страховой полис</button>
+
+            <div class="modal fade" id="addInsurancePolicy" tabindex="-1" aria-labelledby="addInsurancePolicy" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="addInsurancePolicyHeader">Добавить страховой полис</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <form id="add_insurance_policy" class="was-validated">
+                            {% csrf_token %}
+
+                                <input type="hidden" id="agreement" name="agreement" value="{{ agreement.pk }}">
+
+                                <div class="col mb-3">
+                                    <div class="form-floating">
+                                        <input type="text" name="name_insurance_company" id="id_name_insurance_company" class="form-control" required>
+                                        <label for="id_name_insurance_company" class="form-label">{{ policy_form.name_insurance_company.label }}</label>
+                                    </div>
+                                </div>
+
+                                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+
+                                    <div class="col mb-3">
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" name="date_from" id="id_date_from" required>
+                                            <label for="id_date_from">{{ policy_form.date_from.label }}</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col mb-3">
+                                        <div class="form-floating">
+                                            <input type="date" class="form-control" name="date_to" id="id_date_to" required>
+                                            <label for="id_date_to">{{ policy_form.date_to.label }}</label>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </form>
+                            <div id="insurance_policy_messages"></div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button id="send_insurance_policy" type="button" data-url="{% url 'projecta:create_insurance_policy' %}"
+                            data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 mt-1" id="insurance_policy_row">
+                {% for insurance_policy in agreement.insurances.all %}
+                <div class="col mt-3"  id="insurance_policy_card_{{ insurance_policy.id }}">
+                    <div class="card">
+
+                        <div class="card-header">
+                            <div class="d-flex p-2">
+                                <div><strong>Страховой полис от "{{ insurance_policy.name_insurance_company }}"</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="card-text">
+                                <ul class="list-group-flush">
+                                    <li><strong>Дата начала</strong> - {{ insurance_policy.date_from|date:"d.m.Y" }}</li>
+                                    <li><strong>Дата завершения</strong> - {{ insurance_policy.date_to|date:"d.m.Y" }}</li>
+                                </ul>
+                            </div>
+                            <div class="d-flex">
+                                <div class="ms-auto">
+                                    {% if perms.projecta.change_insurancepolicy %}
+                                    <a href="{% url 'projecta:insurance_policy_update' insurance_policy.id %}" title="Обновить страховой полис" class="me-2">
+                                        <img src="{% static 'icons/update.svg' %}" style="width: 18px;">
+                                    </a>
+                                    {% endif %}
+
+                                    {% if perms.projecta.delete_insurancepolicy %}
+                                    <button type="button" class="btn" style="padding:0;" title="Удалить страховой полис" data-bs-toggle="modal" data-bs-target="#modalContact{{ insurance_policy.id }}">
+                                        <img src="{% static 'icons/delete.svg' %}" style="width: 18px;">
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                {% if perms.projecta.delete_insurance_policy %}
+                                <!-- delete_modal -->
+                                <div class="modal fade" id="modalContact{{ insurance_policy.id }}" tabindex="-1" aria-labelledby="{{ insurance_policy.id }}Label" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="{{ item.id }}Label">Точно хотите удалить страховой полис?</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <h5 class="card-title fw-bold me-auto">{{ insurance_policy.name_insurance_company }}</h5>
+                                                <li><strong>Дата начала</strong> - {{ insurance_policy.date_from|date:"d.m.Y" }}</li>
+                                                <li><strong>Дата завершения</strong> - {{ insurance_policy.date_to|date:"d.m.Y" }}</li>
+                                            </div>
+        
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                                <button onclick='delete_insurance_policy_func("{% url 'projecta:delete_insurance_policy' insurance_policy.id %}", "insurance_policy_card_{{ insurance_policy.id }}")' id="delete_insurance_policy" type="button" class="btn btn-danger"
+                                                    data-bs-dismiss="modal">Удалить</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="mt-3" id="no-insurance_policies"><strong>Нет страховых полисов.</strong></div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Акты и счета -->
+        <div class="mt-5">
+
+            <h4 class="d-inline me-3">Акты и счета</h4>
+
+            {% if agreement.status != "Расторгнут" and agreement.status != "ЭДО" %}
+                <button type="button" class="btn btn-dark btn-sm d-inline" data-bs-toggle="modal" data-bs-target="#addAct">Добавить акт и счёт</button>
+
+                <div class="modal fade" id="addAct" tabindex="-1" aria-labelledby="addAct" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="addActHeader">Добавить акт и счёт</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <form id="add_act" class="was-validated">
+                                    {% csrf_token %}
+
+                                    <input type="hidden" id="agreement" name="agreement" value="{{ agreement.pk }}">
+
+                                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-w row-cols-lg-2 row-cols-xl-2">
+                                        <div class="col mb-3">
+                                            <div class="form-floating">
+                                                <input type="text" name="act_number" class="form-control" id="id_act_number" required>
+                                                <label for="id_act_number" class="form-label">{{ act_form.act_number.label }}</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col mb-3">
+                                            <div class="form-floating">
+                                                <select class="form-select" name="act_status" id="id_act_status">
+                                                    {% for status in act_form.act_status %}
+                                                        {{ status }}
+                                                    {% endfor %}
+                                                </select>
+                                                <label for="id_act_status">{{ act_form.act_status.label }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+
+                                        <div class="col mb-3">
+                                            <div class="form-floating">
+                                                <input type="text" name="check_number" class="form-control" id="check_number">
+                                                <label for="id_check_number" class="form-label">{{ act_form.check_number.label }}</label>
+                                            </div>
+                                        </div>
+
+                                        <div class="col mb-3">
+                                            <div class="form-floating">
+                                                <select class="form-select" name="check_status" id="id_check_status">
+                                                    {% for status in act_form.check_status %}
+                                                        {{ status }}
+                                                    {% endfor %}
+                                                </select>
+                                                <label for="id_check_status">{{ act_form.check_status.label }}</label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-floating">
+                                            <input  type="date" name="act_date" id="id_act_date" class="form-control" required />
+                                            <label for="id_act_date">{{ act_form.act_date.label }}</label>
+                                        </div>
+                                    </div>
+
+                                </form>
+                                <div id="act_messages"></div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button id="send_act" type="button" data-url="{% url 'projecta:create_act' %}"
+                                    data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 mt-1" id="act_row">
+                {% for act in agreement.acts.all %}
+                    <div class="col mt-3">
+                        <div class="card">
+
+                            <div class="card-header">
+                              <div class="d-flex p-2">
+                                <div><strong>Акт №{{ act.act_number }}</strong></div>
+                                <div class="ms-auto"><span class="badge text-bg-dark text-end">{{ act.act_status }}</span></div>
+                              </div>
+                            </div>
+
+                            <div class="card-body">
+                              <div class="card-text">
+                                    <ul class="list-group-flush">
+                                        <li><strong>Номер счёта</strong> - {{ act.check_number }}</li>
+                                        <li><strong>Статус счёта</strong> - {{ act.check_status }}</li>
+                                        <li><strong>Дата</strong> - {{ act.act_date|date:"d.m.Y" }}</li>
+                                        <li><strong>Обновлено</strong> - {{ act.updated|date:"d.m.Y, H:i" }}</li>
+                                        <li><strong>Автор</strong> - {{ act.author }}</li>
+                                    </ul>
+                                    <div class="d-flex">
+                                        <div class="ms-auto">
+                                            <a href="{% url 'projecta:act_update' act.id %}" title="Обновить акт" class="me-2">
+                                                <img src="{% static 'icons/update.svg' %}" style="width: 18px;">
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="mt-3" id="no-acts"><strong>Нет актов.</strong></div>
+                {% endfor %}
+            </div>
+
+        </div>
+
+        <!-- Заявки -->
+        <div class="mt-5">
+
+            <h4 class="d-inline me-3">Заявки</h4>
+            {% if agreement.status != "Расторгнут" %}
+                <button type="button" class="btn btn-dark btn-sm d-inline" data-bs-toggle="modal" data-bs-target="#addTicket">Добавить заявку</button>
+
+                <div class="modal fade" id="addTicket" tabindex="-1" aria-labelledby="addTicket" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="addTicketHeader">Добавить заявку</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add_ticket" class="was-validated">
+                                {% csrf_token %}
+
+                                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+                                    <div class="col mb-3">
+                                        <div class="form-floating">
+                                            <select class="form-select" name="type" id="id_ticket_type">
+                                                {% for type in  ticket_form.type %}
+                                                    {{ type }}
+                                                {% endfor %}
+                                            </select>
+                                            <label for="id_ticket_type" class="form-label">{{ ticket_form.type.label }}</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="col mb-3">
+                                        <div class="form-floating">
+                                            <select class="form-select" name="status" id="id_status">
+                                                {% for status in  ticket_form.status %}
+                                                    {{ status }}
+                                                {% endfor %}
+                                            </select>
+                                            <label for="id_status" class="form-label">{{ ticket_form.status.label }}</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <div class="form-floating">
+                                            <input type="date" name="execution_date" class="form-control" id="id_execution_date">
+                                            <label for="execution_date" class="form-label">{{ ticket_form.execution_date.label }}</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" id="agreement" name="agreement" value="{{ agreement.pk }}">
+
+                                <div class="row mb-3">
+                                    <label for="id_comment" class="form-label">{{ ticket_form.comment.label }}</label>
+                                    <div class="row m-1">
+                                        <textarea class="form-control" name="comment" rows="3" cols="45" id="id_comment"></textarea>
+                                    </div>
+                                </div>
+
+                            </form>
+                            <div id="ticket_messages"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="send_ticket" type="button" data-url="{% url 'projecta:create_ticket' %}"
+                                data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-3 mt-1" id="ticket_row">
+                {% for ticket in agreement.tickets.all %}
+                    <div class="col mt-3">
+                        <div class="card">
+
+                            <div class="card-header">
+                              <div class="d-flex p-2">
+                                <div><strong>Заявка №{{ ticket.id }}</strong></div>
+                                <div class="ms-auto"><span class="badge text-bg-dark text-end" id="data_ticket_statuses_{{ ticket.id }}">{{ ticket.status }}</span></div>
+                              </div>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="card-text">
+                                    <ul class="list-group-flush">
+                                        <li><strong>Тип</strong> - <span id="data_ticket_types_{{ ticket.id }}">{{ ticket.type }}</span></li>
+                                        <li><strong>Дата выезда</strong> - <span id="data_execution_date_{{ ticket.id }}">{{ ticket.execution_date|date:"d.m.Y" }}</span></li>
+                                        <li><strong>Обновлено</strong> - {{ ticket.updated|date:"d.m.Y H:i" }}</li>
+                                        <li><strong>Автор</strong> - {{ ticket.author }}</li>
+                                    </ul>
+                                    <div class="d-flex">
+                                        <div class="ms-auto">
+                                            <a type="button" class="btn ms-auto" data-bs-toggle="modal" data-bs-target="#changeTicket{{ ticket.id }}Statuses" title="Обновить заявку">
+                                                <img src="{% static 'icons/update.svg' %}" style="width: 18px;">
+                                            </a>
+
+                                            <div class="modal fade" id="changeTicket{{ ticket.id }}Statuses" tabindex="-1" aria-labelledby="changeTicket{{ ticket.id }}Statuses" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                                    <div class="modal-content">
+
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="changeTicket{{ ticket.id }}StatusesHeader">Изменить статусы</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <form id="add_ticket_statuses">
+                                                                {% csrf_token %}
+
+                                                                <div class="row mb-3">
+                                                                    <div class="col-8">
+                                                                        <label for="ticket_types">Тип заявки</label>
+                                                                        <select class="form-select" name="ticket_types" id="id_ticket_types_{{ticket.id}}">
+                                                                            {% for value, option in ticket_types %}
+                                                                                {% if option == ticket.type %}
+                                                                                    <option value="{{ value }}" selected>{{ option }}</option>
+                                                                                {% else %}
+                                                                                    <option value="{{ value }}">{{ option }}</option>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-4 mt-auto d-grid">
+                                                                        <button onclick='send_ticket_status_agreement("id_ticket_types_{{ticket.id}}", "{{ticket.id}}", "send_act_types_{{ticket.id}}", "data_ticket_types_{{ ticket.id }}")' id="send_act_types_{{ticket.id}}" type="button" data-url="{% url 'projecta:update_ticket_type' ticket.pk %}" class="btn btn-success">
+                                                                            Отправить
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row mb-3">
+                                                                    <div class="col-8">
+                                                                        <label for="ticket_statuses">Статус заявки</label>
+                                                                        <select class="form-select" name="ticket_statuses" id="id_ticket_statuses_{{ticket.id}}">
+                                                                            {% for value, option in ticket_statuses %}
+                                                                                {% if option == ticket.status %}
+                                                                                    <option value="{{ value }}" selected>{{ option }}</option>
+                                                                                {% else %}
+                                                                                    <option value="{{ value }}">{{ option }}</option>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-4 mt-auto d-grid">
+                                                                        <button onclick='send_ticket_status_agreement("id_ticket_statuses_{{ticket.id}}", "{{ticket.id}}", "send_act_statuses_{{ticket.id}}", "data_ticket_statuses_{{ ticket.id }}")' id="send_act_statuses_{{ticket.id}}" type="button" data-url="{% url 'projecta:update_ticket_status' ticket.pk %}" class="btn btn-success">Отправить</button>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="row mb-3">
+                                                                    <div class="col-8">
+                                                                        <label for="id_label_execution_date">Дата выезда</label>
+                                                                        <input type="date" class="form-control" name="execution_date" id="id_execution_date_{{ticket.id}}" value="{{ ticket.execution_date|date:"Y-m-d" }}" id="id_execution_date">
+                                                                    </div>
+                                                                    <div class="col-4 mt-auto d-grid">
+                                                                        <button onclick='send_ticket_status_agreement("id_execution_date_{{ticket.id}}", "{{ticket.id}}", "send_execution_date_{{ticket.id}}", "data_execution_date_{{ ticket.id }}", "date")' id="send_execution_date_{{ticket.id}}" type="button" data-url="{% url 'projecta:update_ticket_exec_date' ticket.pk %}" class="btn btn-success">
+                                                                            Отправить
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                            </form>
+                                                            <div id="ticket_statuses_messages_{{ticket.id}}"></div>
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="mt-3" id="no-tickets"><strong>Нет заявок.</strong></div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+{% endblock main %}
+
+{% block script %}
+    <script>
+        if(document.getElementById('id_agreement_statuses')){
+            document.getElementById('id_agreement_statuses').value = document.getElementById('data_agreement_statuses').innerHTML;
+        }
+    </script>
+
+    {% if agreement.status != "Расторгнут" and agreement.status != "ЭДО" %}
+        <script type="text/javascript" src="{% static 'js/scripts/create_act.js' %}"></script>
+    {% endif %}
+
+    {% if agreement.status != "Расторгнут" %}
+        <script type="text/javascript" src="{% static 'js/scripts/create_ticket.js' %}"></script>
+    {% endif %}
+
+    {% if perms.projecta.add_equipment %}
+        <script type="text/javascript" src="{% static 'js/scripts/create_equipment.js' %}"></script>
+    {% endif %}
+
+    {% if perms.projecta.delete_equipment %}
+        <script type="text/javascript" src="{% static 'js/scripts/delete_equipment.js' %}"></script>
+    {% endif %}
+
+    {% if perms.projecta.add_insurancepolicy %}
+        <script type="text/javascript" src="{% static 'js/scripts/create_insurance_policy.js' %}"></script>
+    {% endif %}
+
+    {% if perms.projecta.delete_insurancepolicy %}
+        <script type="text/javascript" src="{% static 'js/scripts/delete_insurance_policy.js' %}"></script>
+    {% endif %}
+
+    <script type="text/javascript" src="{% static 'js/scripts/update_agreement_is_deleted.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/scripts/update_ticketStatuses_tickets.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/scripts/update_ticketStatuses_agreements.js' %}"></script>
+{% endblock script %}

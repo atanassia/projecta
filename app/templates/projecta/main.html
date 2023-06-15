@@ -1,0 +1,37 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Личный кабинет
+{% endblock title %}
+
+
+{% block main %}
+
+<div class="mb-3 mt-1">
+    <h1 class="display-6">Личный кабинет</h1>
+    <p class="lead mt-5">
+        <h4>{{user.last_name}} {{user.first_name}} {{user.middle_name}}</h4>
+        <small class="text-muted h5">{{ user.get_position_display }}</small>
+
+        <li class="list-group-item mt-3">
+            <div class="ms-2 me-auto">
+                <div>
+                  <img src="{% static 'icons/phone.svg' %}" class="me-2" style="width: 15px;">
+                  {{ user.phone }}
+                </div>
+
+                <div>
+                  <img src="{% static 'icons/email.svg' %}" class="me-2" style="width: 15px;">
+                  {{ user.email }}
+                </div>
+            </div>
+          </li>
+    </p>
+
+    <a class="btn btn-outline-dark btn-sm mt-3" href="{% url 'projecta:change_password' %}" role="button">Обновление пароля</a>
+    <a class="btn btn-outline-dark btn-sm mt-3 me-2" href="{% url 'password_reset' %}" role="button">Сбросить пароль</a>
+</div>
+
+{% endblock main %}

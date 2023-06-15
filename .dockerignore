@@ -1,0 +1,6 @@
+/postgres-db-volume
+/.git
+/internal
+
+default_cfg.yaml
+/media

@@ -1,0 +1,353 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Договоры
+{% endblock title %}
+
+{% block main %}
+<h1 class="mt-4">
+    Договоры
+</h1>
+
+
+<form class = "mt-4" method="post">
+    {% csrf_token %}
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 row-cols-xl-3">
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="agreement_number" id="id_agreement_number" value="{{ chosen_filters.agreement_number.0 }}" class="form-control">
+                    <label for="id_agreement_number">{{ filter.form.agreement_number.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input  type="text" name="client" id="id_client" list="datalistOptions" value="{{ chosen_filters.client.0 }}" class="form-control">
+                    <label for="id_client">{{ filter.form.client.label }}</label>
+                    <datalist id="datalistOptions">
+                        {% for client in  agreement_form.client %}
+                            <option value="{{ client.choice_label.name }}">
+                        {% endfor %}
+                    </datalist>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input  type="text" name="address" id="id_address" value="{{ chosen_filters.address.0 }}" class="form-control">
+                    <label for="id_address">{{ filter.form.address.label }}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-3 row-cols-md-3 row-cols-lg-3 row-cols-xl-3">
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="status" id="id_status">
+                        {% for st in  filter.form.status.field.choices %}
+                            {% if st.0 == chosen_filters.status.0 %}
+                                <option value="{{ st.0 }}" selected>{{ st.1 }}</option>
+                            {% else %}
+                                <option value="{{ st.0 }}">{{ st.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_status">{{ filter.form.status.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="num_reg_certificate" id="id_num_reg_certificate" value="{{ chosen_filters.num_reg_certificate.0 }}" class="form-control">
+                    <label for="id_num_reg_certificate">{{ filter.form.num_reg_certificate.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="license" id="id_license">
+                        {% for st in  filter.form.license.field.choices %}
+                            {% if st.0 == chosen_filters.license.0 %}
+                                <option value="{{ st.0 }}" selected>{{ st.1 }}</option>
+                            {% else %}
+                                <option value="{{ st.0 }}">{{ st.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_license">Есть лицензия</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-2 row-cols-sm-2 row-cols-md-2 row-cols-lg-4 row-cols-xl-4">
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_from_year" id="id_date_from_year">
+                        <option value="">Все</option>
+                        <option value="">Текущий год</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                    </select>
+                    <label for="id_date_from_year">{{ filter.form.date_from_year.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_from_month" id="id_date_from_month">
+                        <option value="">Все</option>
+                        <option value="">Текущий месяц</option>
+                        <option value="1">Январь</option>
+                        <option value="2">Февраль</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрель</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июнь</option>
+                        <option value="7">Июль</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябрь</option>
+                        <option value="10">Отктябрь</option>
+                        <option value="11">Ноябрь</option>
+                        <option value="12">Декабрь</option>
+                    </select>
+                    <label for="id_date_from_month">{{ filter.form.date_from_month.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_to_year" id="id_date_to_year">
+                        <option value="">Все</option>
+                        <option value="">Текущий год</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                    </select>
+                    <label for="id_date_to_year">{{ filter.form.date_to_year.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_to_month" id="id_date_to_month">
+                        <option value="">Все</option>
+                        <option value="">Текущий месяц</option>
+                        <option value="1">Январь</option>
+                        <option value="2">Февраль</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрель</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июнь</option>
+                        <option value="7">Июль</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябрь</option>
+                        <option value="10">Отктябрь</option>
+                        <option value="11">Ноябрь</option>
+                        <option value="12">Декабрь</option>
+                    </select>
+                    <label for="id_date_to_month">{{ filter.form.date_to_month.label }}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 me-auto mt-1" role="group">
+                {% if perms.projecta.add_agreement %}
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAgreement">Добавить договор</button>
+                {% endif %}
+            </div>
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mt-1" role="group">
+                <a type="submit" class="btn btn-secondary" href="{% url 'projecta:agreements' %}" role="button">Отменить</a>
+                <button type="submit" class="btn btn-primary">Поиск</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+{% if perms.projecta.add_agreement %}
+    <div class="modal fade" id="addAgreement" tabindex="-1" aria-labelledby="addAgreement" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addAgreementHeader">Добавить договор</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add_agreement" class="was-validated">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_agreement_number" class="form-label">{{ agreement_form.agreement_number.label }}</label>
+                        <input type="text" name="agreement_number" class="form-control" id="agreement_number" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-floating">
+                            <select class="form-select" name="client" id="client">
+                                {% for client in  agreement_form.client %}
+                                    {{ client }}
+                                {% endfor %}
+                            </select>
+                            <label for="client" class="form-label">{{ agreement_form.client.label }}</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_address" class="form-label">{{ agreement_form.address.label }}</label>
+                        <input type="text" name="address" maxlength="1024" class="form-control" id="id_address" required />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select" name="status" id="status">
+                                        {% for status in agreement_form.status %}
+                                            {{ status }}
+                                        {% endfor %}
+                                    </select>
+                                    <label for="id_status">{{ agreement_form.status.label }}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select" name="responsible" id="id_responsible">
+                                        {% for responsible in agreement_form.responsible %}
+                                            {{ responsible }}
+                                        {% endfor %}
+                                    </select>
+                                    <label for="id_responsible">{{ agreement_form.responsible.label }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="id_date_from" class="form-label">{{ agreement_form.date_from.label }}</label>
+                                <input type="date" name="date_from" class="form-control" id="id_date_from" required>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="id_date_to" class="form-label">{{ agreement_form.date_to.label }}</label>
+                                <input type="date" name="date_to" class="form-control" id="id_date_to" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="id_num_reg_certificate" class="form-label">{{ agreement_form.num_reg_certificate.label }}</label>
+                                <input type="text" name="num_reg_certificate" class="form-control" id="id_num_reg_certificate">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="id_date_reg_certificate" class="form-label">{{ agreement_form.date_reg_certificate.label }}</label>
+                                <input type="date" name="date_reg_certificate" class="form-control" id="id_date_reg_certificate">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select" name="license" id="id_license">
+                                        {% for license in agreement_form.license %}
+                                            {{ license }}
+                                        {% endfor %}
+                                    </select>
+                                    <label for="id_license">{{ agreement_form.license.label }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+                <div id="agreement_messages"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="send_agreement" type="button" data-url="{% url 'projecta:create_agreement' %}"
+                    data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+            </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+
+<div class="table-responsive">
+    <table class="table table-hover table-sm mt-4 caption-top">
+        <caption class="fw-bolder">Найдено: {{ agreements|length }}</caption>
+        <thead>
+            <tr>
+                <th scope="col">№ договора клиента</th>
+                <th scope="col">Объект</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Рег. номер</th>
+                <th scope="col">Лицензия</th>
+                <th scope="col">Дата начала</th>
+                <th scope="col">Дата окончания</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider" id="agreement-table-body">
+            {% for agreement in agreements %}
+                <tr class="position-relative">
+                    <td>
+                        <a class="stretched-link" href="{% url 'projecta:agreement_detail' agreement.id %}">
+                            №{{ agreement.agreement_number }} - {{ agreement.client }}
+                        </a>
+                    </td>
+                    <td>{{ agreement.address }}</td>
+                    <td>{{ agreement.status }}</td>
+                    <td>{{ agreement.num_reg_certificate }}</td>
+                    <td>{{ agreement.license }}</td>
+                    <td>{{ agreement.date_from|date:"d.m.Y" }}</td>
+                    <td>{{ agreement.date_to|date:"d.m.Y" }}</td>
+                </tr>
+            {% empty %}
+            <tr id="no-data">
+                <td colspan="7">Нет договоров.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const d = new Date();
+    document.getElementById("id_date_from_year").options[1].value = d.getFullYear();
+    document.getElementById("id_date_from_month").options[1].value = d.getMonth() + 1;
+    document.getElementById("id_date_to_year").options[1].value = d.getFullYear();
+    document.getElementById("id_date_to_month").options[1].value = d.getMonth() + 1;
+
+    document.getElementById('id_date_from_year').value = '{{ chosen_filters.date_from_year.0 }}';
+    document.getElementById('id_date_from_month').value = '{{ chosen_filters.date_from_month.0 }}';
+    document.getElementById('id_date_to_year').value = '{{ chosen_filters.date_to_year.0 }}';
+    document.getElementById('id_date_to_month').value = '{{ chosen_filters.date_to_month.0 }}';
+</script>
+
+{% endblock main %}
+
+{% block script %}
+    <script type="text/javascript" src="{% static 'js/scripts/create_agreement.js' %}"></script>
+{% endblock script %}

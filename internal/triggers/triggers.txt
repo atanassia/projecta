@@ -1,0 +1,209 @@
+--FUNCTIONS--
+-- DROP FUNCTION public.fun_client_status_insert CASCADE;
+-- DROP FUNCTION public.fun_client_status_update CASCADE;
+-- DROP FUNCTION public.fun_client_status_update_is_actual CASCADE;
+-- DROP FUNCTION public.fun_client_status_update_is_delete CASCADE;
+
+-- DROP FUNCTION public.fun_agreement_status_insert CASCADE;
+-- DROP FUNCTION public.fun_agreement_status_update CASCADE;
+-- DROP FUNCTION public.fun_agreement_status_update_is_actual CASCADE;
+-- DROP FUNCTION public.fun_agreement_status_update_is_delete CASCADE;
+
+-- DROP FUNCTION public.fun_ticket_status_insert CASCADE;
+-- DROP FUNCTION public.fun_ticket_status_update CASCADE;
+-- DROP FUNCTION public.fun_ticket_status_update_is_actual CASCADE;
+
+-- DROP FUNCTION public.fun_fictitious_user_insert CASCADE;
+
+--TRIGGERS--
+-- DROP TRIGGER trigger_client_status_update_is_actual ON public.client;
+-- DROP TRIGGER trigger_client_status_update ON public.client;
+-- DROP TRIGGER trigger_client_status_insert ON public.client;
+-- DROP TRIGGER trigger_client_status_update_is_delete ON public.client;
+
+-- DROP TRIGGER trigger_agreement_status_update_is_actual ON public.agreement;
+-- DROP TRIGGER trigger_agreement_status_update ON public.agreement;
+-- DROP TRIGGER trigger_agreement_status_insert ON public.agreement;
+-- DROP TRIGGER trigger_agreement_status_update_is_delete ON public.agreement;
+
+-- DROP TRIGGER trigger_ticket_status_insert ON public.ticket;
+-- DROP TRIGGER trigger_ticket_status_update ON public.ticket;
+-- DROP TRIGGER trigger_ticket_status_update_is_actual ON public.ticket;
+
+-- DROP TRIGGER trigger_executor_fictitious_user_insert CASCADE;
+
+-- Client
+CREATE OR REPLACE FUNCTION public.fun_client_status_insert()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.client_status(client_id, author, status, created, updated, executor, is_active, is_delete, is_actual) 
+		VALUES(NEW.id, NEW.author_id,  NEW.status, NEW.created, NEW.updated, NEW.executor_id, NEW.is_active, NEW.is_delete, TRUE);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_client_status_insert AFTER INSERT ON public.client 
+FOR EACH ROW EXECUTE FUNCTION public.fun_client_status_insert();
+
+CREATE OR REPLACE FUNCTION public.fun_client_status_update()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.client_status(client_id, author, status, created, updated, executor, is_active, is_delete, is_actual) 
+		VALUES(NEW.id, NEW.author_id,  NEW.status, NEW.created, NEW.updated, NEW.executor_id, NEW.is_active, NEW.is_delete, TRUE);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_client_status_update BEFORE UPDATE ON public.client 
+FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status) EXECUTE FUNCTION public.fun_client_status_update();
+
+CREATE OR REPLACE FUNCTION public.fun_client_status_update_is_actual()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	UPDATE public.client_status SET is_actual = false 
+		WHERE client_id = NEW.id
+			AND updated < NEW.updated;
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_client_status_update_is_actual BEFORE UPDATE ON public.client 
+FOR EACH ROW EXECUTE FUNCTION public.fun_client_status_update_is_actual();
+
+CREATE OR REPLACE FUNCTION public.fun_client_status_update_is_delete()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.client_status(client_id, author, status, created, updated, executor, is_active, is_delete, is_actual) 
+		VALUES(NEW.id, NEW.author_id,  NEW.status, NEW.created, NEW.updated, NEW.executor_id, NEW.is_active, NEW.is_delete, TRUE);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_client_status_update_is_delete BEFORE UPDATE ON public.client 
+FOR EACH ROW WHEN ((old.is_delete IS DISTINCT FROM new.is_delete)) EXECUTE FUNCTION public.fun_client_status_update_is_delete();
+
+-- Agreement
+CREATE OR REPLACE FUNCTION public.fun_agreement_status_insert()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.agreement_status(agreement_id, responsible, created, updated, author, status, executor, is_active, is_delete, is_actual) 
+		VALUES(NEW.id, NEW.responsible_id, NEW.created, NEW.updated, NEW.author_id, NEW.status,  NEW.executor_id, NEW.is_active, NEW.is_delete, TRUE);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_agreement_status_insert AFTER INSERT ON public.agreement 
+FOR EACH ROW EXECUTE FUNCTION public.fun_agreement_status_insert();
+
+CREATE OR REPLACE FUNCTION public.fun_agreement_status_update()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.agreement_status(agreement_id, responsible, created, updated, author, status, executor, is_active, is_delete, is_actual) 
+		VALUES(NEW.id, NEW.responsible_id, NEW.created, NEW.updated, NEW.author_id, NEW.status,  NEW.executor_id, NEW.is_active, NEW.is_delete, TRUE);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_agreement_status_update BEFORE UPDATE ON public.agreement 
+FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status) EXECUTE FUNCTION public.fun_agreement_status_update();
+
+CREATE OR REPLACE FUNCTION public.fun_agreement_status_update_is_actual()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	update public.agreement_status set is_actual = false 
+		where agreement_id = NEW.id
+			and updated < NEW.updated;
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_agreement_status_update_is_actual BEFORE UPDATE ON public.agreement 
+FOR EACH ROW EXECUTE FUNCTION public.fun_agreement_status_update_is_actual();
+
+CREATE OR REPLACE FUNCTION public.fun_agreement_status_update_is_delete()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.agreement_status(agreement_id, responsible, created, updated, author, status, executor, is_active, is_delete, is_actual) 
+		VALUES(NEW.id, NEW.responsible_id, NEW.created, NEW.updated, NEW.author_id, NEW.status,  NEW.executor_id, NEW.is_active, NEW.is_delete, TRUE);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Ticket
+CREATE TRIGGER trigger_agreement_status_update_is_delete BEFORE UPDATE ON public.agreement 
+FOR EACH ROW WHEN(OLD.is_delete IS DISTINCT FROM NEW.is_delete) EXECUTE FUNCTION public.fun_agreement_status_update_is_delete();
+
+CREATE OR REPLACE FUNCTION public.fun_ticket_status_insert()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.ticket_status(ticket_id, status, author, created, updated, executor, is_active, is_actual) 
+		VALUES(NEW.id, NEW.status, NEW.author_id, NEW.created, NEW.updated, NEW.executor_id, NEW.is_active, TRUE);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_ticket_status_insert AFTER INSERT ON public.ticket 
+FOR EACH ROW EXECUTE FUNCTION public.fun_ticket_status_insert();
+
+CREATE OR REPLACE FUNCTION public.fun_ticket_status_update()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.ticket_status(ticket_id, status, author, created, updated, executor, is_active, is_actual) 
+		VALUES(NEW.id, NEW.status, NEW.author_id, NEW.created, NEW.updated, NEW.executor_id, NEW.is_active, TRUE);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_ticket_status_update BEFORE UPDATE ON public.ticket 
+FOR EACH ROW WHEN (OLD.status IS DISTINCT FROM NEW.status) EXECUTE FUNCTION public.fun_ticket_status_update();
+
+CREATE OR REPLACE FUNCTION public.fun_ticket_status_update_is_actual()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	UPDATE public.ticket_status SET is_actual = false 
+		WHERE ticket_id = NEW.id
+			AND updated < NEW.updated;
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_ticket_status_update_is_actual BEFORE UPDATE ON public.ticket 
+FOR EACH ROW EXECUTE FUNCTION public.fun_ticket_status_update_is_actual();
+
+--Executor
+CREATE OR REPLACE FUNCTION public.fun_fictitious_user_insert()
+ RETURNS TRIGGER
+AS $$
+BEGIN
+	INSERT INTO public.worker("password", is_superuser, is_staff, is_active, is_sys_user, email, first_name, middle_name, last_name, phone, "position", created, updated, executor_id) 
+		VALUES('pbkdf2_sha256$260000$IOaf1XwmrtTwm4U7osrNQe$Pz3zgK0TQ8LSVN+5RZK+qv1YBf/4seqR+NvGX6OC/tc=', false, false, true, true, CONCAT('test', NEW.id, '@test.com'), 'Нет', '', 'пользователя', '8(888) 888-88-88', 'Plumber', '1970-01-01 00:00:00', '1970-01-01 00:00:00', NEW.id);
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_executor_fictitious_user_insert AFTER INSERT ON public.executor 
+FOR EACH ROW EXECUTE FUNCTION public.fun_fictitious_user_insert();
+

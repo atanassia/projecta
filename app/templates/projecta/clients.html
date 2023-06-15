@@ -1,0 +1,189 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Клиенты
+{% endblock title %}
+
+{% block main %}
+<h1 class="mt-4">
+    Клиенты
+</h1>
+
+<form class = "mt-4" method="post">
+    {% csrf_token %}
+    <div class="container">
+
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-1 row-cols-lg-3 row-cols-xl-3">
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="name" id="id_name" value="{{ chosen_filters.name.0 }}" class="form-control">
+                    <label for="id_name">{{ filter.form.name.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="inn" id="id_inn" value="{{ chosen_filters.inn.0 }}" class="form-control">
+                    <label for="id_inn">{{ filter.form.inn.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="kpp" id="id_kpp" value="{{ chosen_filters.kpp.0 }}" class="form-control">
+                    <label for="id_kpp">{{ filter.form.kpp.label }}</label>
+                </div>
+            </div>
+
+        </div>
+        <div class="row mt-2">
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4 me-auto mt-1" role="group">
+                {% if perms.projecta.add_client %}
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addClient">Добавить клиента</button>
+                {% endif %}
+            </div>
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4 mt-1" role="group">
+                <a type="submit" class="btn btn-secondary" href="{% url 'projecta:clients' %}" role="button">Отменить</a>
+                <button type="submit" class="btn btn-primary">Поиск</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% if perms.projecta.add_client %}
+    <div class="modal fade" id="addClient" tabindex="-1" aria-labelledby="addClient" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addClientHeader">Добавить клиента</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add_client" class="was-validated">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="id_inn" class="form-label">{{ client_form.inn.label }}</label>
+                                <input type="text" name="inn" maxlength="12" id="id_inn" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="id_kpp" class="form-label">{{ client_form.kpp.label }}</label>
+                                <input type="text" name="kpp" maxlength="10" id="id_kpp" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_org_form" class="form-label">{{ client_form.org_form.label }}</label>
+                        <select class="form-select" name="org_form" id="id_org_form">
+                            {% for item in client_form.org_form %}
+                                {{ item }}
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">{{ client_form.name.label }}</label>
+                        <input type="text" name="name" maxlength="255" id="name" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">{{ client_form.status.label }}</label>
+                        <input type="text" name="status" maxlength="255" id="status" class="form-control"/>
+                    </div>
+                    <div class="row">
+                        <div class="col-9">
+                            <div class="mb-3">
+                                <label for="id_legal_address" class="form-label">{{ client_form.legal_address.label }}</label>
+                                <input type="text" name="legal_address" maxlength="1023" id="id_legal_address" class="form-control"/>
+                            </div>
+                        </div>
+
+                        <div class="col-3">
+                            <div class="mb-3">
+                                <label for="id_index" class="form-label">{{ client_form.index.label }}</label>
+                                <input type="text" name="index" maxlength="6" id="id_index" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="mb-3">
+                                <label for="id_phone" class="form-label">{{ client_form.phone.label }}</label>
+                                <input type="text" name="phone" id="id_phone" class="form-control" data-phone-pattern placeholder="+7(999) 123-5678" required />
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div class="mb-3">
+                                <label for="id_email" class="form-label">{{ client_form.email.label }}</label>
+                                <input type="email" name="email" maxlength="1023" id="id_email" class="form-control"/>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+                <div id="client_messages"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="send_client" type="button" data-url="{% url 'projecta:create_client' %}"
+                    data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+            </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+
+<div class="table-responsive">
+    <table class="table table-hover table-sm mt-4 caption-top">
+        <caption class="fw-bolder">Найдено: {{ clients.count }}</caption>
+        <thead class="position-relative">
+            <tr>
+                <th scope="col">Наименование</th>
+                <th scope="col">ИНН</th>
+                <th scope="col">КПП</th>
+                <th scope="col">Адрес</th>
+                <th scope="col">Телефон</th>
+                <th scope="col">Почта</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider" id="client-table-body">
+            {% for client in clients %}
+                <tr class="position-relative">
+                    <td scope="row">
+                        <a class="stretched-link" href="{% url 'projecta:client_detail' client.pk %}">
+                            {{client}}
+                        </a>
+                    </td>
+                    <td>{{ client.inn }}</td>
+                    <td>{{ client.kpp }}</td>
+                    <td>{{ client.legal_address }}</td>
+                    <td>{{ client.phone }}</td>
+                    <td>{{ client.email }}</td>
+                </tr>
+            {% empty %}
+                <tr id="no-data">
+                    <td colspan="6">
+                        Нет клиентов.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock main %}
+
+{% block script %}
+    {% if perms.projecta.add_client %}
+        <script type="text/javascript" src="{% static 'js/scripts/create_client.js' %}"></script>
+    {% endif %}
+    <script defer type="text/javascript" src="{% static 'js/scripts/phone_input.js' %}"></script>
+{% endblock script %}

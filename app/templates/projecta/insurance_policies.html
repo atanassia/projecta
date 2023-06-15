@@ -1,0 +1,221 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Страховые полисы
+{% endblock title %}
+
+{% block main %}
+<h1 class="mt-4">
+    Страховые полисы
+</h1>
+
+<form class = "mt-4" method="post">
+    {% csrf_token %}
+    <div class="container">
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 row-cols-xl-5">
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="name" id="id_name" value="{{ chosen_filters.name.0 }}" class="form-control">
+                    <label for="id_name">{{ filter.form.name.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_from_year" id="id_date_from_year">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий год</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                    </select>
+                    <label for="id_date_from_year">{{ filter.form.date_from_year.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_from_month" id="id_date_from_month">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий месяц</option>
+                        <option value="1">Январь</option>
+                        <option value="2">Февраль</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрель</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июнь</option>
+                        <option value="7">Июль</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябрь</option>
+                        <option value="10">Отктябрь</option>
+                        <option value="11">Ноябрь</option>
+                        <option value="12">Декабрь</option>
+                    </select>
+                    <label for="id_date_from_month">{{ filter.form.date_from_month.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_to_year" id="id_date_to_year">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий год</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                    </select>
+                    <label for="id_date_to_year">{{ filter.form.date_to_year.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_to_month" id="id_date_to_month">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий месяц</option>
+                        <option value="1">Январь</option>
+                        <option value="2">Февраль</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрель</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июнь</option>
+                        <option value="7">Июль</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябрь</option>
+                        <option value="10">Отктябрь</option>
+                        <option value="11">Ноябрь</option>
+                        <option value="12">Декабрь</option>
+                    </select>
+                    <label for="id_date_to_month">{{ filter.form.date_to_month.label }}</label>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row mt-2">
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4 me-auto mt-1" role="group">
+                {% if perms.projecta.add_insurancepolicy %}
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addInsurancePolicy">Добавить страховой полис</button>
+                {% endif %}
+            </div>
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mt-1" role="group">
+                <a type="submit" class="btn btn-secondary" href="{% url 'projecta:insurance_policies' %}" role="button">Отменить</a>
+                <button type="submit" class="btn btn-primary">Поиск</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% if perms.projecta.add_insurancepolicy %}
+<div class="modal fade" id="addInsurancePolicy" tabindex="-1" aria-labelledby="addInsurancePolicy" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addInsurancePolicyHeader">Добавить страховой полис</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="add_insurance_policy" class="was-validated">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <select class="form-select" name="agreement" id="id_agreement">
+                                    {% for agreement in policy_form.agreement %}
+                                        {{ agreement }}
+                                    {% endfor %}
+                                </select>
+                                <label for="id_agreement">{{ policy_form.agreement.label }}</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input  type="text" name="name_insurance_company" id="id_name_insurance_company" class="form-control" required>
+                                <label for="id_name_insurance_company">{{ policy_form.name_insurance_company.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+                        <div class="col mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" name="date_from" id="id_date_from" required>
+                                <label for="id_date_from">{{ policy_form.date_from.label }}</label>
+                            </div>
+                        </div>
+
+                        <div class="col mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" name="date_to" id="id_date_to" required>
+                                <label for="id_date_to">{{ policy_form.date_to.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+                <div id="insurance_policy_messages"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="send_insurance_policy" type="button" data-url="{% url 'projecta:create_insurance_policy' %}"
+                    data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="table-responsive">
+    <table class="table table-hover table-sm mt-4 caption-top">
+        <caption class="fw-bolder">Найдено: {{ policy.count }}</caption>
+        <thead>
+            <tr>
+                <th scope="col">№ договора клиента</th>
+                <th scope="col">Страховая компания</th>
+                <th scope="col">Начало страхования</th>
+                <th scope="col">Конец страхования</th>
+                <th scope="col" class="text-center">Регистрационный №</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider" id="policy-table-body">
+            {% for item in policy %}
+                <tr class="position-relative">
+                    <td>
+                        <a class="stretched-link" href="{% url 'projecta:agreement_detail' item.agreement_id %}">
+                            №{{ item.agreement.agreement_number }} - {{ item.agreement.client }}
+                        </a>
+                    </td>
+                    <td>{{ item.name_insurance_company }}</td>
+                    <td>{{ item.date_from|date:"d.m.Y" }}</td>
+                    <td>{{ item.date_to|date:"d.m.Y" }}</td>
+                    <td class="text-center">{{ item.agreement.num_reg_certificate }}</td>
+                </tr>
+            {% empty %}
+            <tr id="no-data">
+                <td colspan="5">Нет страховых полисов.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock main %}
+
+{% block script %}
+    {% if perms.projecta.add_insurance_policy %}
+        <script type="text/javascript" src="{% static 'js/scripts/create_insurance_policy.js' %}"></script>
+    {% endif %}
+{% endblock script %}

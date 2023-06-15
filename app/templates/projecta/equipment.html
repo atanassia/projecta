@@ -1,0 +1,262 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Оборудование
+{% endblock title %}
+
+{% block main %}
+<h1 class="mt-4">
+    Оборудование
+</h1>
+
+<form class = "mt-4" method="post">
+    {% csrf_token %}
+    <div class="container">
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 row-cols-xl-5">
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="type" id="id_type">
+                        {% for st in  filter.form.type.field.choices %}
+                            {% if st.0 == chosen_filters.type.0 %}
+                                <option value="{{ st.0 }}" selected>{{ st.1 }}</option>
+                            {% else %}
+                                <option value="{{ st.0 }}">{{ st.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_type">{{ filter.form.type.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_from_year" id="id_date_from_year">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий год</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                    </select>
+                    <label for="id_date_from_year">{{ filter.form.date_from_year.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_from_month" id="id_date_from_month">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий месяц</option>
+                        <option value="1">Январь</option>
+                        <option value="2">Февраль</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрель</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июнь</option>
+                        <option value="7">Июль</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябрь</option>
+                        <option value="10">Отктябрь</option>
+                        <option value="11">Ноябрь</option>
+                        <option value="12">Декабрь</option>
+                    </select>
+                    <label for="id_date_from_month">{{ filter.form.date_from_month.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_to_year" id="id_date_to_year">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий год</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                    </select>
+                    <label for="id_date_to_year">{{ filter.form.date_to_year.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="date_to_month" id="id_date_to_month">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий месяц</option>
+                        <option value="1">Январь</option>
+                        <option value="2">Февраль</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрель</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июнь</option>
+                        <option value="7">Июль</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябрь</option>
+                        <option value="10">Отктябрь</option>
+                        <option value="11">Ноябрь</option>
+                        <option value="12">Декабрь</option>
+                    </select>
+                    <label for="id_date_to_month">{{ filter.form.date_to_month.label }}</label>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row mt-2">
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 me-auto mt-1" role="group">
+                {% if perms.projecta.add_equipment %}
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEquipment">Добавить оборудование</button>
+                {% endif %}
+            </div>
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mt-1" role="group">
+                <a type="submit" class="btn btn-secondary" href="{% url 'projecta:equipment' %}" role="button">Отменить</a>
+                <button type="submit" class="btn btn-primary">Поиск</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% if perms.projecta.add_equipment %}
+<div class="modal fade" id="addEquipment" tabindex="-1" aria-labelledby="addEquipment" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addEquipmentHeader">Добавить оборудование</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="add_equipment" class="was-validated">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col mb-3">
+                            <div class="form-floating">
+                                <select class="form-select" name="agreement" id="id_agreement">
+                                    {% for agreement in equipment_form.agreement %}
+                                        {{ agreement }}
+                                    {% endfor %}
+                                </select>
+                                <label for="id_agreement">{{ equipment_form.agreement.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col col col-12 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                            <div class="mb-3">
+                                <div class="form-floating">
+                                    <select class="form-select" name="type" id="id_type">
+                                        {% for item in equipment_form.type %}
+                                            {{ item }}
+                                        {% endfor %}
+                                    </select>
+                                    <label for="id_type">{{ equipment_form.type.label }}</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col col col-12 col-sm-4 col-md-4 col-lg-4 col-xl-4 mb-3">
+                            <div class="form-floating">
+                                <input  type="number" name="amount" id="id_amount" class="form-control" required>
+                                <label for="id_amount">{{ equipment_form.amount.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+                        <div class="col mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" name="date_from" id="id_date_from" required>
+                                <label for="id_date_from">{{ equipment_form.date_from.label }}</label>
+                            </div>
+                        </div>
+
+                        <div class="col mb-3">
+                            <div class="form-floating">
+                                <input type="date" class="form-control" name="date_to" id="id_date_to" required>
+                                <label for="id_date_to">{{ equipment_form.date_to.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="id_description" class="row m-1 form-label">{{ equipment_form.description.label }}</label>
+                        <div class="m-1">
+                            <textarea class="form-control" name="description" rows="3" cols="45" id="id_description" required ></textarea>
+                        </div>
+                    </div>
+                </form>
+                <div id="equipment_messages"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="send_equipment" type="button" data-url="{% url 'projecta:create_equipment' %}"
+                    data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="table-responsive">
+    <table class="table table-hover table-sm mt-4 caption-top">
+        <caption class="fw-bolder">Найдено: {{ equipment.count }}</caption>
+        <thead>
+            <tr>
+                <th scope="col">№ договора клиента</th>
+                <th scope="col">Тип оборудования</th>
+                <th scope="col">Описание</th>
+                <th scope="col">Количество</th>
+                <th scope="col" class="text-center">Срок эксплуатации</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider" id="equipment-table-body">
+            {% for equip in equipment %}
+                <tr class="position-relative">
+                    <td>
+                        <a class="stretched-link" href="{% url 'projecta:agreement_detail' equip.agreement_id %}">
+                            №{{ equip.agreement.agreement_number }} - {{ equip.agreement.client }}
+                        </a>
+                    </td>
+                    <td>{{ equip.type }}</td>
+                    <td>{{ equip.description }}</td>
+                    <td class="text-center">{{ equip.amount }}</td>
+                    <td class="text-center">{{ equip.date_from|date:"d.m.Y" }} - {{ equip.date_to|date:"d.m.Y" }}</td>
+                </tr>
+            {% empty %}
+            <tr id="no-data">
+                <td colspan="5">Нет оборудования.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const d = new Date();
+    document.getElementById("id_date_from_year").options[1].value = d.getFullYear();
+    document.getElementById("id_date_from_month").options[1].value = d.getMonth() + 1;
+    document.getElementById("id_date_to_year").options[1].value = d.getFullYear();
+    document.getElementById("id_date_to_month").options[1].value = d.getMonth() + 1;
+
+    document.getElementById('id_date_from_year').value = '{{ chosen_filters.date_from_year.0 }}';
+    document.getElementById('id_date_from_month').value = '{{ chosen_filters.date_from_month.0 }}';
+    document.getElementById('id_date_to_year').value = '{{ chosen_filters.date_to_year.0 }}';
+    document.getElementById('id_date_to_month').value = '{{ chosen_filters.date_to_month.0 }}';
+</script>
+
+{% endblock main %}
+
+{% block script %}
+    {% if perms.projecta.add_equipment %}
+    <script type="text/javascript" src="{% static 'js/scripts/create_equipment.js' %}"></script>
+    {% endif %}
+{% endblock script %}

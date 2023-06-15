@@ -1,0 +1,93 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Изменение данных о работнике
+{% endblock title %}
+
+{% block main %}
+<div class="row justify-content-center mb-3">
+    <div class="col-12 col-sm-12 col-md-9 col-lg-7 col-xl-6">
+        <div class="form-header">
+            <h4 class="title mb-3 mt-4" id="exampleLabel">Изменение данных о сотруднике</h4>
+        </div>
+
+        <div class="form-body mb-3">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group row mt-4">
+                    <label for="id_first_name" class="col-sm-3 col-form-label ">{{ form.first_name.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="first_name" value="{{ form.first_name.value }}" id="id_first_name" required>
+                    </div>
+                </div>
+
+                <div class="form-group row mt-4">
+                    <label for="id_last_name" class="col-sm-3 col-form-label ">{{ form.last_name.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="last_name" value="{{ form.last_name.value }}" id="id_last_name" required>
+                    </div>
+                </div>
+
+                <div class="form-group row mt-4">
+                    <label for="id_middle_name" class="col-sm-3 col-form-label ">{{ form.middle_name.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="middle_name" value="{{ form.middle_name.value }}" id="id_middle_name">
+                    </div>
+                </div>
+
+                <div class="form-group row mt-4">
+                    <label for="id_email" class="col-sm-3 col-form-label ">{{ form.email.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="email" class="form-control" name="email" value="{{ form.email.value }}" id="id_email" required>
+                    </div>
+                </div>
+
+                <div class="form-group row mt-4">
+                    <label for="id_phone" class="col-sm-3 col-form-label ">{{ form.phone.label }}</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="phone" value="{{ form.phone.value }}" id="id_phone" data-phone-pattern placeholder="+7(999) 123-5678" required>
+                    </div>
+                </div>
+
+                <div class="form-group row mt-4">
+                    <label for="id_position" class="col-sm-3 col-form-label ">{{ form.position.label }}</label>
+                    <div class="col-sm-9">
+                        <select class="form-select" name="position" id="id_position">
+                            {% for position in form.position %}
+                                {{ position }}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3 form-check mt-4">
+                    <label class="form-check-label" name="is_active" id="id_is_active">{{ form.is_active.label }}</label>
+                    <input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" {% if form.is_active.value %}checked{% endif %}>
+                    <span class="helptext">
+                        "Отметьте, если пользователь должен считаться активным. Уберите эту отметку вместо удаления учётной записи."
+                    </span>
+                </div>
+
+                <div class="invisible">
+                    {{ worker.id }}
+                </div>
+
+                <div class="d-grid gap-1 mt-5">
+                    <div class="d-flex ms-auto btn-group" role="group">
+                        <a class="btn btn-secondary" href="{% url 'projecta:workers' %}" role="button">Назад</a>
+                        <button class="btn btn-success" type="submit">Отправить</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock main %}
+
+{% block script %}
+  <script defer type="text/javascript" src="{% static 'js/scripts/phone_input.js' %}"></script>
+{% endblock script %}

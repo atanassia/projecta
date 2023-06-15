@@ -1,0 +1,256 @@
+{% extends 'layout/layout.html' %}
+{% load static %}
+
+{% block title %}
+    Заявки
+{% endblock title %}
+
+
+{% block main %}
+<h1 class="mt-4">
+    Заявки
+</h1>
+
+<form class = "mt-4" method="post">
+    {% csrf_token %}
+    <div class="container">
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-3 row-cols-xl-3">
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="agreement" id="id_agreement" value="{{ chosen_filters.agreement.0 }}" class="form-control">
+                    <label for="id_agreement">{{ filter.form.agreement.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="object" id="id_object" value="{{ chosen_filters.object.0 }}" class="form-control">
+                    <label for="id_object">{{ filter.form.object.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="type" id="id_type">
+                        {% for type in  filter.form.type.field.choices %}
+                            {% if type.0 == chosen_filters.type.0 %}
+                                <option value="{{ type.0 }}" selected>{{ type.1 }} </option>
+                            {% else %}
+                                <option value="{{ type.0 }}">{{ type.1 }} </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_type">{{ filter.form.type.label }}</label>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 row-cols-lg-4 row-cols-xl-4">
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="status" id="id_status">
+                        {% for status in filter.form.status.field.choices %}
+                            {% if status.0 == chosen_filters.status.0 %}
+                                <option value="{{ status.0 }}" selected>{{ status.1 }} </option>
+                            {% else %}
+                                <option value="{{ status.0 }}">{{ status.1 }} </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_status">{{ filter.form.status.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="responsible" id="id_responsible">
+                        {% for responsible in filter.form.responsible.field.choices %}
+                            {% if responsible.0 == chosen_filters.responsible.0|add:"0" %}
+                                <option value="{{ responsible.0 }}" selected>{{ responsible.1 }}</option>
+                            {% else %}
+                                <option value="{{ responsible.0 }}">{{ responsible.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_responsible">{{ filter.form.responsible.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="execution_date_year" id="id_created_year">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий год</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="2019">2019</option>
+                    </select>
+                    <label for="id_created_year">{{ filter.form.execution_date_year.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="execution_date_month" id="id_created_month">
+                        <option value="" selected="">Все</option>
+                        <option value="">Текущий месяц</option>
+                        <option value="1">Январь</option>
+                        <option value="2">Февраль</option>
+                        <option value="3">Март</option>
+                        <option value="4">Апрель</option>
+                        <option value="5">Май</option>
+                        <option value="6">Июнь</option>
+                        <option value="7">Июль</option>
+                        <option value="8">Август</option>
+                        <option value="9">Сентябрь</option>
+                        <option value="10">Отктябрь</option>
+                        <option value="11">Ноябрь</option>
+                        <option value="12">Декабрь</option>
+                    </select>
+                    <label for="id_created_month">{{ filter.form.execution_date_month.label }}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 me-auto mt-1" role="group">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTicket">Добавить заявку</button>
+            </div>
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-3 col-xl-3 mt-1" role="group">
+                <a type="submit" class="btn btn-secondary" href="{% url 'projecta:tickets' %}" role="button">Отменить</a>
+                <button type="submit" class="btn btn-primary">Поиск</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="modal fade" id="addTicket" tabindex="-1" aria-labelledby="addTicket" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="addTicketHeader">Добавить заявку</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="add_ticket" class="was-validated">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <select class="form-select" name="agreement" id="agreement">
+                            {% for agreement in  ticket_form.agreement %}
+                                {{ agreement }}
+                            {% endfor %}
+                        </select>
+                        <label for="agreement" class="form-label">{{ ticket_form.agreement.label }}</label>
+                    </div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+                    <div class="col mb-3">
+                        <div class="form-floating">
+                            <select class="form-select" name="type" id="type">
+                                {% for type in  ticket_form.type %}
+                                    {{ type }}
+                                {% endfor %}
+                            </select>
+                            <label for="type" class="form-label">{{ ticket_form.type.label }}</label>
+                        </div>
+                    </div>
+
+                    <div class="col mb-3">
+                        <div class="form-floating">
+                            <select class="form-select" name="status" id="status">
+                                {% for status in  ticket_form.status %}
+                                    {{ status }}
+                                {% endfor %}
+                            </select>
+                            <label for="status" class="form-label">{{ ticket_form.status.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <div class="form-floating">
+                            <input type="date" name="execution_date" class="form-control" id="id_execution_date">
+                            <label for="execution_date" class="form-label">{{ ticket_form.execution_date.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_comment" class="form-label">{{ ticket_form.comment.label }}</label>
+                    <div class="row m-1">
+                        <textarea class="form-control" name="comment" rows="3" cols="45" id="id_comment"></textarea>
+                    </div>
+                </div>
+
+            </form>
+
+            <div id="ticket_messages"></div>
+        </div>
+        <div class="modal-footer">
+            <button id="send_ticket" type="button" data-url="{% url 'projecta:create_ticket' %}"
+                data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="table-responsive">
+    <table class="table table-hover table-sm mt-4 caption-top">
+        <caption class="fw-bolder">Найдено: {{ tickets|length }}</caption>
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Соглашение</th>
+                <th scope="col">Объект</th>
+                <th scope="col">Ответственный</th>
+                <th scope="col">Тип</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Дата выезда</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider" id="ticket-table-body">
+            {% for ticket in tickets %}
+                <tr class="position-relative">
+                    <td><a class="stretched-link" href="{% url 'projecta:ticket_detail' ticket.pk %}">{{ ticket.id }}</a></td>
+                    <td>№{{ ticket.agreement.agreement_number }} - {{ ticket.agreement.client }}</td>
+                    <td>{{ ticket.agreement.address }}</td>
+                    <td>{{ ticket.agreement.responsible }}</td>
+                    <td>{{ ticket.type }}</td>
+                    <td>{{ ticket.status }}</td>
+                    <td>{{ ticket.execution_date|date:"d.m.Y" }}</td>
+                </tr>
+            {% empty %}
+                <tr id="no-data">
+                    <td colspan="7">
+                        Нет заявок.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const d = new Date();
+    document.getElementById("id_created_year").options[1].value = d.getFullYear();
+    document.getElementById("id_created_month").options[1].value = d.getMonth() + 1;
+
+    document.getElementById('id_created_year').value = "{{ chosen_filters.created_year.0 }}"
+    document.getElementById('id_created_month').value = '{{ chosen_filters.created_month.0 }}';
+</script>
+
+{% endblock main %}
+
+{% block script %}
+    <script type="text/javascript" src="{% static 'js/scripts/create_ticket.js' %}"></script>
+{% endblock script %}

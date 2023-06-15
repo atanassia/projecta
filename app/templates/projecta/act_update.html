@@ -1,0 +1,88 @@
+{% extends 'layout/layout.html' %}
+
+{% block title %}
+    Обновление акта
+{% endblock title %}
+
+{% block main %}
+    <div class="row justify-content-center mb-3">
+        <div class="col-12 col-sm-12 col-md-9 col-lg-7 col-xl-6">
+            <div class="form-header">
+                <h4 class="title mb-3 mt-4" id="exampleLabel">Обновление акта</h4>
+            </div>
+            <div class="form-body mb-3">
+                {% if form.errors %}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <strong>{{field.label}}: </strong>{{ error|escape }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if error %}
+                <div class="alert alert-{{ error.status }} alert-dismissible fade show" role="alert">
+                    {{ error.message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group row mt-4">
+                        <label for="id_act_number" class="col-sm-3 col-form-label ">{{ form.act_number.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="act_number" value="{{ form.act_number.value }}" id="id_act_number" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_act_date" class="col-sm-3 col-form-label ">{{ form.act_date.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" name="act_date" value="{{ form.act_date.value|date:"Y-m-d" }}" id="id_act_date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_act_status" class="col-sm-3 col-form-label ">{{ form.act_status.label }}</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" name="act_status" id="id_act_status">
+                                {% for status in form.act_status %}
+                                    {{ status }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_check_number" class="col-sm-3 col-form-label ">{{ form.check_number.label }}</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" name="check_number" value="{{ form.check_number.value }}" id="id_check_number">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-4">
+                        <label for="id_check_status" class="col-sm-3 col-form-label ">{{ form.check_status.label }}</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" name="check_status" id="id_check_status">
+                                {% for status in form.check_status %}
+                                    {{ status }}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-1 mt-5">
+                        <div class="d-flex pe-3 ms-auto btn-group" role="group">
+                            <a class="btn btn-secondary ms-auto" href="{% url 'projecta:agreement_detail' act.agreement.id %}" role="button">Назад</a>
+                            <button class="btn btn-success" type="submit">Отправить</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock main %}

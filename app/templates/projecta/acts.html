@@ -1,0 +1,218 @@
+{% extends 'layout/layout.html' %}
+
+{% load static %}
+
+{% block title %}
+    Акты
+{% endblock title %}
+
+
+{% block main %}
+<h1 class="mt-4">
+    Акты и счета
+</h1>
+
+<form class = "mt-4" method="post">
+    {% csrf_token %}
+    <div class="container">
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-3 row-cols-xl-3">
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <input type="text" name="act_number" id="id_act_number" value="{{ chosen_filters.act_number.0 }}" class="form-control">
+                    <label for="id_act_number">{{ filter.form.act_number.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="agreement" id="id_agreement">
+                        {% for agreement in filter.form.agreement.field.choices %}
+                            {% if agreement.0 == chosen_filters.agreement.0|add:"0" %}
+                                <option value="{{ agreement.0 }}" selected>{{ agreement.1 }} </option>
+                            {% else %}
+                                <option value="{{ agreement.0 }}">{{ agreement.1 }} </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_agreement">{{ filter.form.agreement.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating ">
+                    <input type="date" name="act_date" id="act_date" value="{{ chosen_filters.act_date.0 }}" class="form-control">
+                    <label for="id_act_date">{{ filter.form.act_date.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="act_status" id="id_act_status">
+                        {% for status in filter.form.act_status.field.choices %}
+                            {% if status.0 == chosen_filters.act_status.0 %}
+                                <option value="{{ status.0 }}" selected>{{ status.1 }}</option>
+                            {% else %}
+                                <option value="{{ status.0 }}">{{ status.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_act_status">{{ filter.form.act_status.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating ">
+                    <input type="text" name="check_number" id="id_check_number" value="{{ chosen_filters.check_number.0 }}" class="form-control">
+                    <label for="id_check_number">{{ filter.form.check_number.label }}</label>
+                </div>
+            </div>
+
+            <div class="col mt-1">
+                <div class="form-floating">
+                    <select class="form-select" name="check_status" id="id_check_status">
+                        {% for status in  filter.form.check_status.field.choices %}
+                            {% if status.0 == chosen_filters.check_status.0 %}
+                                <option value="{{ status.0 }}" selected>{{ status.1 }}</option>
+                            {% else %}
+                                <option value="{{ status.0 }}">{{ status.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    <label for="id_check_status">{{ filter.form.check_status.label }}</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4 me-auto mt-1" role="group">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAct">Добавить акт и счёт</button>
+            </div>
+            <div class="btn-group col col-12 col-sm-6 col-md-6 col-lg-4 col-xl-4 mt-1" role="group">
+                <a type="submit" class="btn btn-secondary" href="{% url 'projecta:acts' %}" role="button">Отменить</a>
+                <button type="submit" class="btn btn-primary">Поиск</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="modal fade" id="addAct" tabindex="-1" aria-labelledby="addAct" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5" id="addActHeader">Добавить акт и счёт</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="add_act" class="was-validated">
+                {% csrf_token %}
+
+
+                <div class="form-floating mb-3">
+                    <select class="form-select" name="agreement" id="id_agreement">
+                        {% for agreement in form.agreement %}
+                            {{ agreement }}
+                        {% endfor %}
+                    </select>
+                    <label for="id_agreement">{{ form.agreement.label }}</label>
+                </div>
+
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-w row-cols-lg-2 row-cols-xl-2">
+                    <div class="col mb-3">
+                        <div class="form-floating">
+                            <input type="text" name="act_number" class="form-control" id="id_act_number" required>
+                            <label for="id_act_number" class="form-label">{{ form.act_number.label }}</label>
+                        </div>
+                    </div>
+
+                    <div class="col mb-3">
+                        <div class="form-floating">
+                            <select class="form-select" name="act_status" id="id_act_status">
+                                {% for status in form.act_status %}
+                                    {{ status }}
+                                {% endfor %}
+                            </select>
+                            <label for="id_act_status">{{ form.act_status.label }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-2 row-cols-xl-2">
+
+                    <div class="col mb-3">
+                        <div class="form-floating">
+                            <input type="text" name="check_number" class="form-control" id="check_number">
+                            <label for="id_check_number" class="form-label">{{ form.check_number.label }}</label>
+                        </div>
+                    </div>
+
+                    <div class="col mb-3">
+                        <div class="form-floating">
+                            <select class="form-select" name="check_status" id="id_check_status">
+                                {% for status in form.check_status %}
+                                    {{ status }}
+                                {% endfor %}
+                            </select>
+                            <label for="id_check_status">{{ form.check_status.label }}</label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mb-3">
+                    <div class="form-floating">
+                        <input  type="date" name="act_date" id="id_act_date" class="form-control" required />
+                        <label for="id_act_date">{{ form.act_date.label }}</label>
+                    </div>
+                </div>
+
+            </form>
+            <div id="act_messages"></div>
+        </div>
+        <div class="modal-footer">
+            <button id="send_act" type="button" data-url="{% url 'projecta:create_act' %}"
+                data-backdrop="static" data-keyboard="false" class="btn btn-primary">Отправить</button>
+        </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover table-sm mt-4 caption-top">
+        <caption class="fw-bolder">Найдено: {{ acts.count }}</caption>
+        <thead>
+            <tr>
+                <th scope="col">Соглашение</th>
+                <th scope="col">Номер акта</th>
+                <th scope="col">Статус акта</th>
+                <th scope="col">Номер счёта</th>
+                <th scope="col">Статус счёта</th>
+                <th scope="col">Дата</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider" id="act-table-body">
+            {% for act in acts %}
+                <tr>
+                    <td>№{{ act.agreement.agreement_number }} - {{ act.agreement.client }}</td>
+                    <td>{{ act.act_number }}</td>
+                    <td>{{ act.act_status }}</td>
+                    <td>{{ act.check_number }}</td>
+                    <td>{{ act.check_status }}</td>
+                    <td>{{ act.act_date|date:"d.m.Y" }}</td>
+                </tr>
+            {% empty %}
+                <tr id="no-data">
+                    <td colspan="6">
+                        Нет актов.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock main %}
+
+{% block script %}
+<script type="text/javascript" src="{% static 'js/scripts/create_act.js' %}"></script>
+{% endblock script %}
