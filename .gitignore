@@ -160,10 +160,10 @@ cython_debug/
 
 
 #local
-/media
+/app/media
 
-static/fonts/static/*
+/app/static/fonts/static/*
 
-static/admin
+/app/static/admin
 
 /postgres-db-volume
